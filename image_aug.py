@@ -14,7 +14,7 @@ Installation
 Ubuntu Linux
 ~~~~~~~
 
-Python 3 + Tkinter + Darknet YOLO
+Python 3 + Tkinter 
 
 .. code:: shell
     cd ~/
