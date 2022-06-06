@@ -14,7 +14,7 @@ Installation
 Ubuntu Linux
 ~~~~~~~
 
-Python 3 + Tkinter 
+Python 3 + Tkinter + Darknet YOLO
 
 .. code:: shell
     cd ~/
@@ -1033,12 +1033,6 @@ class IMGAug_JPGS_ANNOS:
                         pass
         except:
             pass
-        self.TRAIN_label_dic={}
-        self.TRAIN_count_dic={}
-        self.TEST_count_dic={}
-        self.TRAIN_POST_count_dic={}
-        i=1
-        j=2
         try:
             self.LABEL_title.destroy()
         except:
@@ -1051,6 +1045,13 @@ class IMGAug_JPGS_ANNOS:
             self.testcount_title.destroy()
         except:
             pass
+        self.TRAIN_label_dic={}
+        self.TRAIN_count_dic={}
+        self.TEST_count_dic={}
+        self.TRAIN_POST_count_dic={}
+        i=1
+        j=2
+
 
         self.LABEL_title=tk.Label(self.root,text='Label',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
         self.LABEL_title.grid(row=i,column=j+6,sticky='nw')
@@ -1074,7 +1075,11 @@ class IMGAug_JPGS_ANNOS:
 
         try:
             self.MAX_AUGS=int(float(self.MAX_AUGS_VAR.get()))
-            self.max_count=self.MAX_AUGS
+            if self.MAX_AUGS<self.max_count:
+                self.MAX_AUGS=self.max_count
+                self.MAX_AUGS_VAR.set(self.max_count)
+            else:
+                self.max_count=self.MAX_AUGS
             print('using self.MAX_AUGS = {} per class \n'.format(self.max_count))
         except:
             print('using self.max_counts = {} per class \n'.format(self.max_count))
@@ -1188,19 +1193,6 @@ class IMGAug_JPGS_ANNOS:
                 start_count=unique_label_count_train
                 #print('Current Count = {}, Desired Count = {}\n'.format(unique_label_count_train,max_count))
                 for j,(JPEG_i_path,ANNO_i_path) in tqdm(enumerate(zip(self.df_i['JPEGImages'],self.df_i['Annotations']))):
-                    # if JPEG_i_path in Augment_Count.keys():
-                    #     unique_label_count_train+=len(self.df_i[self.df_i['JPEGImages']==JPEG_i_path])
-                    #     for label_i in self.df_j[self.df_j['JPEGImages']==JPEG_i_path]['label_i'].unique():
-                    #         unique_count_i=len(self.df_j[(self.df_j['label_i']==label_i) & (self.df_j['JPEGImages']==JPEG_i_path)])
-                    #         if label_i in self.label_counter.keys():
-                    #             curr_value=self.label_counter[label_i]
-                    #             curr_value+=unique_count_i
-                    #             self.label_counter[label_i]=curr_value
-                    #         else:
-                    #             self.label_counter[label_i]=unique_count_i
-                    #     break
-                    
-                    #print('Current Count = {}, Desired Count = {}\n'.format(unique_label_count_train,self.max_label_counts))
                     ia.seed(j)
                     ANNO=PascalVocReader(ANNO_i_path)
                     ANNO_i=ANNO.get_shapes()
@@ -1249,8 +1241,7 @@ class IMGAug_JPGS_ANNOS:
                             self.Annotation_i_path_aug=os.path.join(self.Annotations_aug_path,'aug_'+time_i+'_'+os.path.basename(ANNO_i_path))
 
                             count_i=writePascalVOV(self.image_aug,self.bbs_aug,JPEG_i_path,ANNO_i_path,self.JPEG_i_path_aug,self.Annotation_i_path_aug)
-                            if unique_label_count_train>self.max_count:
-                                break
+
                             if count_i>0:
                                 
                                 for label_i in self.df_j[self.df_j['JPEGImages']==JPEG_i_path]['label_i'].unique():
@@ -1264,6 +1255,8 @@ class IMGAug_JPGS_ANNOS:
 
                                     unique_label_count_train=self.label_counter[unique_label]
                                 self.Augment_Count[JPEG_i_path]=JPEG_i_path
+                            if unique_label_count_train>=self.max_count:
+                                break
 
                 if start_count==unique_label_count_train:
                     print('Issue getting augmentations for: {}'.format(unique_label))
@@ -1272,7 +1265,7 @@ class IMGAug_JPGS_ANNOS:
         print('\n Total Augmentations = {}\n'.format(self.Augment_Count))
         print('\nFinal TRAIN Count = {}\n'.format(len(self.train_list_annos)+self.Augment_Count))
         print('Final TEST Count = {}\n'.format(len(self.test_list_annos)))
-
+        
         self.create_post_df()
         print('Training Label Summary:\n')
         self.label_counter_after={}
@@ -1320,12 +1313,6 @@ class IMGAug_JPGS_ANNOS:
                         pass
         except:
             pass
-        self.TRAIN_label_dic={}
-        self.TRAIN_count_dic={}
-        self.TEST_count_dic={}
-        self.TRAIN_POST_count_dic={}
-        i=1
-        j=2
         try:
             self.LABEL_title.destroy()
         except:
@@ -1342,6 +1329,13 @@ class IMGAug_JPGS_ANNOS:
             self.traincountafter_title.destroy()
         except:
             pass
+        self.TRAIN_label_dic={}
+        self.TRAIN_count_dic={}
+        self.TEST_count_dic={}
+        self.TRAIN_POST_count_dic={}
+        i=1
+        j=2
+
         self.LABEL_title=tk.Label(self.root,text='Label',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
         self.LABEL_title.grid(row=i,column=j+6,sticky='nw')
         self.traincount_title=tk.Label(self.root,text='Train Count OG #',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))

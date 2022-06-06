@@ -1,18 +1,18 @@
 import os
-TRAIN_SPLIT=70 #70/30 train/val split only need to say 70
+TRAIN_SPLIT=70 #70/30 train/test split only need to say 70
 PYTHON_PATH='python3'
-path_prefix_elements=r'/media/steven/Elements/'
-path_prefix_mount_mac=r'/media/steven/Elements/'
-path_prefix_volumes_one=r'/Volumes/One Touch/'
+path_prefix_elements=r''
+path_prefix_mount_mac=r''
+path_prefix_volumes_one=r''
 if os.path.exists(path_prefix_elements):
     path_prefix=path_prefix_elements
 elif os.path.exists(path_prefix_mount_mac):
     path_prefix=path_prefix_mount_mac
 else:
-    path_prefix=path_prefix_volumes_one
+    path_prefix=os.getcwd()
 print('path_prefix',path_prefix)
-path_JPEGImages=r'{}Drone_Videos/Combined_transporter9_only_upto_5_18_2022/JPEGImages'.format(path_prefix)
-path_Annotations=r'{}Drone_Videos/Combined_transporter9_only_upto_5_18_2022/Annotations'.format(path_prefix)
+path_JPEGImages=r'{}/dataset/sample_rc_car/JPEGImages'.format(path_prefix)
+path_Annotations=r'{}/dataset/sample_rc_car/Annotations'.format(path_prefix) #default Annotations directory
 PREFIX='augmented'
 root_background_img=r'misc/gradient_green.jpg' #path to background image for app
 DEFAULT_ENCODING = 'utf-8'
