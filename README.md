@@ -12,8 +12,11 @@ Python 3 + Tkinter
 
 .. code:: shell
     cd ~/
+    python3 -m venv venv_IMAGE_AUG_GUI
+    source venv_IMAGE_AUG_GUI/bin/activate
+    
     cd IMAGE_AUG_GUI
-    sudo pip3 install -r requirements.txt
+    pip3 install -r requirements.txt
     python3 image_aug.py
 ~~~~~~~
 
