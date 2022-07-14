@@ -411,6 +411,7 @@ class IMGAug_JPGS_ANNOS:
         self.XML_EXT=DEFAULT_SETTINGS.XML_EXT
         self.JPG_EXT=DEFAULT_SETTINGS.JPG_EXT
         self.COLOR=DEFAULT_SETTINGS.COLOR
+        self.MAX_KEEP=DEFAULT_SETTINGS.MAX_KEEP #'2000'
         
         self.get_update_background_img()
 
@@ -457,7 +458,7 @@ class IMGAug_JPGS_ANNOS:
         self.save_settings_note.grid(row=2,column=4,sticky='ne')
 
         self.submit_button=Button(self.root,text='Submit',command=self.augment_my_imgs,bg=self.root_fg,fg=self.root_bg,font=("Arial 14 bold"))
-        self.submit_button.grid(row=19,column=1,sticky='s')
+        self.submit_button.grid(row=21,column=1,sticky='s')
         #self.submit_note=tk.Label(self.root,text="Submit",bg=self.root_bg,fg=self.root_fg,font=("Arial", 8))
         #self.submit_note.grid(row=18,column=1,sticky='ne')
         self.style3=ttk.Style()
@@ -484,6 +485,15 @@ class IMGAug_JPGS_ANNOS:
         self.TRAIN_SPLIT_button.grid(row=15,column=0,sticky='se')
         self.TRAIN_SPLIT_label=tk.Label(self.root,text='TRAIN SPLIT',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.TRAIN_SPLIT_label.grid(row=16,column=1,sticky='nw')
+
+        self.MAX_KEEP_VAR=tk.StringVar()
+        self.MAX_KEEP_VAR.set(self.MAX_KEEP)
+        self.MAX_KEEP_entry=tk.Entry(self.root,textvariable=self.MAX_KEEP_VAR)
+        self.MAX_KEEP_entry.grid(row=17,column=1,sticky='sw')
+        self.MAX_KEEP_button=Button(self.root,image=self.icon_yolo_objects,command=self.load_my_imgs)
+        self.MAX_KEEP_button.grid(row=17,column=0,sticky='se')
+        self.MAX_KEEP_label=tk.Label(self.root,text='MAX # per CLASS',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.MAX_KEEP_label.grid(row=18,column=1,sticky='nw')
 
         self.var_sometimes=tk.IntVar()
         self.var_sometimes_INIT=DEFAULT_SETTINGS.var_sometimes_INIT
@@ -689,9 +699,9 @@ class IMGAug_JPGS_ANNOS:
         self.MAX_AUGS_VAR=tk.StringVar()
         self.MAX_AUGS_VAR.set(self.MAX_AUGS)
         self.MAX_AUGS_entry=tk.Entry(self.root,textvariable=self.MAX_AUGS_VAR)
-        self.MAX_AUGS_entry.grid(row=17,column=1,sticky='sw')
+        self.MAX_AUGS_entry.grid(row=19,column=1,sticky='sw')
         self.MAX_AUGS_label=tk.Label(self.root,text='# Augs per Class',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
-        self.MAX_AUGS_label.grid(row=18,column=1,sticky='nw')
+        self.MAX_AUGS_label.grid(row=20,column=1,sticky='nw')
 
     def save_settings(self,save_root='libs'):
         self.var_sometimes_INIT=self.var_sometimes.get()
@@ -965,7 +975,12 @@ class IMGAug_JPGS_ANNOS:
             self.unique_label_count_test=0
             self.df_i=self.df[self.df['label_i']==unique_label].copy()
             self.df_i=self.df_i.drop_duplicates().reset_index().drop('index',axis=1)
-            self.df_i=self.df_i.sample(frac=1) #shuffle all rows
+            #Limit the number of images on a per class basis
+            self.MAX_KEEP=int(self.MAX_KEEP_VAR.get())
+            if len(self.df_i)>self.MAX_KEEP:
+                self.df_i=self.df_i.sample(n=self.MAX_KEEP,random_state=42) #random fraction set to MAX_KEEP
+            else: 
+                self.df_i=self.df_i.sample(frac=1,random_state=42) #shuffle all rows
             self.df_i=self.df_i.sort_values(by='JPEGImages')
             self.total_list_i=list(self.df_i['JPEGImages'])
             self.train_list_i=self.total_list_i[:int(self.TRAIN_SPLIT*len(self.df_i)/100.)]
@@ -1092,6 +1107,8 @@ class IMGAug_JPGS_ANNOS:
         
     def augment_my_imgs(self):
         self.load_my_imgs()
+
+
         self.Augmentation_path=os.path.join(self.basepath,'Augmentations')
         if os.path.exists(self.Augmentation_path)==False:
             os.makedirs(self.Augmentation_path)
