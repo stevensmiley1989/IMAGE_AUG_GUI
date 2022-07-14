@@ -50,3 +50,4 @@ var_GaussianBlur_INIT=1
 var_GaussianBlur_frac1_INIT='3.0'
 var_sometimes_GaussianBlur_frac_INIT='0.5'
 MAX_AUGS=500
+MAX_KEEP=2000
