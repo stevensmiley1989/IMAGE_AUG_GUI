@@ -359,11 +359,17 @@ def remove_directory(dir):
             os.remove(path)
     os.rmdir(dir)
 class IMGAug_JPGS_ANNOS:
-    def __init__(self):
+    def __init__(self,path_Annotations='None',path_JPEGImages='None'):
         self.root=root_tk
         self.root.bind('<Escape>',self.close)
-        self.path_JPEGImages=DEFAULT_SETTINGS.path_JPEGImages
-        self.path_Annotations=DEFAULT_SETTINGS.path_Annotations
+        if path_JPEGImages=='None':
+            self.path_JPEGImages=DEFAULT_SETTINGS.path_JPEGImages
+        else:
+            self.path_JPEGImages=path_JPEGImages
+        if path_Annotations=='None':
+            self.path_Annotations=DEFAULT_SETTINGS.path_Annotations
+        else:
+            self.path_Annotations=path_Annotations
         self.root_background_img=r'misc/gradient_green.jpg'
         self.root_W=ROOT_W
         self.root_H=ROOT_H
@@ -944,6 +950,35 @@ class IMGAug_JPGS_ANNOS:
                         i+=1
 
     def load_my_imgs(self):
+        print("LOADING IMGS")
+        self.basepath=os.path.dirname(self.path_Annotations)#.split('Annotations')[0]
+        self.BACKUP_basepath=os.path.join(self.basepath,'BACKUP')
+        self.BACKUP_Annotations=os.path.join(self.BACKUP_basepath,'Annotations')
+        self.BACKUP_JPEGImages=os.path.join(self.BACKUP_basepath,'JPEGImages')
+        if os.path.exists(self.BACKUP_basepath)==False:
+            os.makedirs(self.BACKUP_basepath)
+        if os.path.exists(self.BACKUP_Annotations)==False:
+            os.makedirs(self.BACKUP_Annotations)
+        if os.path.exists(self.BACKUP_JPEGImages)==False:
+            os.makedirs(self.BACKUP_JPEGImages)
+        if os.path.exists(self.BACKUP_Annotations):
+            
+            backup_annos=os.listdir(self.BACKUP_Annotations)
+            backup_annos=[os.path.join(self.BACKUP_Annotations,w) for w in backup_annos if w.find('.xml')!=-1]
+            if len(backup_annos)>0:
+                print('MOVING BACKUP_Annotations to Annotations')
+                for anno in tqdm(backup_annos):
+                    if anno.find('.xml')!=-1:
+                        shutil.move(anno,self.path_Annotations)
+        if os.path.exists(self.BACKUP_JPEGImages):
+            
+            backup_jpegs=os.listdir(self.BACKUP_JPEGImages)
+            backup_jpegs=[os.path.join(self.BACKUP_JPEGImages,w) for w in backup_jpegs if w.find('.jpg')!=-1]
+            if len(backup_jpegs)>0:
+                print('MOVING BACKUP_JPEGImages to JPEGImages')
+                for jpg in tqdm(backup_jpegs):
+                    if jpg.find('.jpg')!=-1:
+                        shutil.move(jpg,self.path_JPEGImages)
         try:
             self.TRAIN_SPLIT=int(float(self.TRAIN_SPLIT_VAR.get()))
         except:
@@ -958,7 +993,7 @@ class IMGAug_JPGS_ANNOS:
         self.Annotations=os.listdir(self.path_Annotations)
         self.Annotations=[os.path.join(self.path_Annotations,w) for w in self.Annotations if w.find('.xml')!=-1 and os.path.exists(os.path.join(self.path_Annotations,w).replace('Annotations','JPEGImages').replace('.xml','.jpg'))]
         self.JPEGImages=[w.replace('Annotations','JPEGImages').replace('.xml','.jpg') for w in self.Annotations]
-        self.basepath=self.path_Annotations.split('Annotations')[0]
+
 
         self.total_annos_list=self.Annotations
         self.create_df()
@@ -970,17 +1005,53 @@ class IMGAug_JPGS_ANNOS:
         self.TRAIN_LIST=[]
         self.TEST_LIST=[]
         self.label_counter_before={}
+        self.total_list_i=None
         for unique_label in tqdm(self.unique_names):
             self.unique_label_count_train=0
             self.unique_label_count_test=0
+            current_jpegs=os.listdir(path_JPEGImages)
+            current_jpegs=[os.path.join(path_JPEGImages,w) for w in current_jpegs if w.find('.jpg')!=-1]
+            self.df=self.df[self.df['JPEGImages'].isin(current_jpegs)].reset_index().drop('index',axis=1)
             self.df_i=self.df[self.df['label_i']==unique_label].copy()
-            self.df_i=self.df_i.drop_duplicates().reset_index().drop('index',axis=1)
+            print('NUMBER OF OBJECTS FOR "{}" == "{}"'.format(unique_label,len(self.df_i)))
+            self.df_i=self.df_i.sample(frac=1,random_state=42) #shuffle all rows
+            self.df_i=self.df_i.drop_duplicates().sort_values(by='JPEGImages').reset_index().drop('index',axis=1)
             #Limit the number of images on a per class basis
             self.MAX_KEEP=int(self.MAX_KEEP_VAR.get())
             if len(self.df_i)>self.MAX_KEEP:
-                self.df_i=self.df_i.sample(n=self.MAX_KEEP,random_state=42) #random fraction set to MAX_KEEP
+                tmp_JPGs=list(self.df_i['JPEGImages'].copy())
+                for jpg_i in tmp_JPGs:
+                    if jpg_i in self.TRAIN_LIST or jpg_i in self.TEST_LIST:
+                        self.df_i=self.df_i[self.df_i['JPEGImages']!=jpg_i].reset_index().drop('index',axis=1)
+                        
+                #self.df_i['JPEGImages']=[w for w in self.df_i['JPEGImages'] if w not in self.TRAIN_LIST and w not in self.TEST_LIST]
+                if len(self.df_i)>self.MAX_KEEP:
+                    #self.df_i=self.df_i.sample(n=self.MAX_KEEP,random_state=42) #random fraction set to MAX_KEEP
+                    #move images to directory called exceed number that are past the max_keep
+                    
+                    df_backup=self.df_i.loc[self.MAX_KEEP:].reset_index().drop('index',axis=1)
+                    backup_jpegs=list(df_backup['JPEGImages'])
+                    backup_annos=[w.replace('JPEGImages','Annotations').replace('.jpg','.xml') for w in backup_jpegs if w.find('.jpg')!=-1 and os.path.exists(w)]
+                    if len(backup_jpegs)>0:
+                        print('Moving extra jpegs to BACKUP_JPEGImages')
+                        for jpg in tqdm(backup_jpegs):
+                            if os.path.exists(os.path.join(self.BACKUP_JPEGImages,os.path.basename(jpg))):
+                                os.remove(os.path.join(self.BACKUP_JPEGImages,os.path.basename(jpg)))
+                            shutil.move(jpg,self.BACKUP_JPEGImages)
+                    if len(backup_annos)>0:
+                        print('Moving extra annos to BACKUP_Annotations')
+                        for anno in tqdm(backup_annos):
+                            if os.path.exists(os.path.join(self.BACKUP_Annotations,os.path.basename(anno))):
+                                os.remove(os.path.join(self.BACKUP_Annotations,os.path.basename(anno)))
+                            shutil.move(anno,self.BACKUP_Annotations)
+                    self.df_i=self.df_i.loc[0:self.MAX_KEEP]
+                else:
+                    tmp_len=len(self.df_i)
+                    print('RAN OUT OF IMAGES TO SAMPLE FROM')
+                    self.df_i=self.df_i.sample(n=tmp_len,random_state=42) #random fraction set to MAX_KEEP
             else: 
                 self.df_i=self.df_i.sample(frac=1,random_state=42) #shuffle all rows
+            print('NUMBER OF OBJECTS AFTER "{}" == "{}"'.format(unique_label,len(self.df_i)))
             self.df_i=self.df_i.sort_values(by='JPEGImages')
             self.total_list_i=list(self.df_i['JPEGImages'])
             self.train_list_i=self.total_list_i[:int(self.TRAIN_SPLIT*len(self.df_i)/100.)]
@@ -1143,8 +1214,14 @@ class IMGAug_JPGS_ANNOS:
             os.makedirs(self.TEST_PATH_JPEG)
 
         for test_anno,test_jpg in tqdm(zip(self.test_list_annos,self.test_list_jpegs)):
-            shutil.copy(test_anno,self.TEST_PATH_ANNO)
-            shutil.copy(test_jpg,self.TEST_PATH_JPEG)
+            try:
+                shutil.copy(test_anno,self.TEST_PATH_ANNO)
+            except:
+                print('ERROR in moving: \n test_anno={}'.format(test_anno))
+            try:
+                shutil.copy(test_jpg,self.TEST_PATH_JPEG)
+            except:
+                print('ERROR in moving: \n test_jpg={}'.format(test_jpg))
 
         self.TRAIN_PATH_ANNO=os.path.join(self.TRAIN_PATH,'Annotations')
         self.TRAIN_PATH_JPEG=os.path.join(self.TRAIN_PATH,'JPEGImages')
@@ -1159,8 +1236,14 @@ class IMGAug_JPGS_ANNOS:
             remove_directory(self.TRAIN_PATH_JPEG)
             os.makedirs(self.TRAIN_PATH_JPEG)
         for train_anno,train_jpg in tqdm(zip(self.train_list_annos,self.train_list_jpegs)):
-            shutil.copy(train_anno,self.TRAIN_PATH_ANNO)
-            shutil.copy(train_jpg,self.TRAIN_PATH_JPEG)
+            try:
+                shutil.copy(train_anno,self.TRAIN_PATH_ANNO)
+            except:
+                print('ERROR in moving: \n train_anno={}'.format(test_anno))      
+            try:
+                shutil.copy(train_jpg,self.TRAIN_PATH_JPEG)
+            except:
+                print('ERROR in moving: \n train_jpg={}'.format(test_jpg))             
 
         self.Annotations_aug_path=self.TRAIN_PATH_ANNO
         self.JPEGImages_aug_path=self.TRAIN_PATH_JPEG
@@ -1364,12 +1447,28 @@ class IMGAug_JPGS_ANNOS:
 
         for label,(count_train,count_test,count_train_after) in self.label_counter_after.items():
             print("LABEL={}; TRAIN={}; TEST={}; POST-TRAIN={}".format(label,count_train,count_test,count_train_after))
+            try:
+                self.TRAIN_label_dic[label].destroy()
+            except:
+                pass
             self.TRAIN_label_dic[label]=tk.Label(self.root,text=label,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 underline'))
             self.TRAIN_label_dic[label].grid(row=i+1,column=j+6,sticky='nw')
+            try:
+                self.TRAIN_count_dic[label].destroy()
+            except:
+                pass
             self.TRAIN_count_dic[label]=tk.Label(self.root,text=count_train,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
             self.TRAIN_count_dic[label].grid(row=i+1,column=j+7,sticky='nw')
+            try:
+                self.TEST_count_dic[label].destroy()
+            except:
+                pass
             self.TEST_count_dic[label]=tk.Label(self.root,text=count_test,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
             self.TEST_count_dic[label].grid(row=i+1,column=j+8,sticky='nw')
+            try:
+                self.TRAIN_POST_count_dic[label].destroy()
+            except:
+                pass
             self.TRAIN_POST_count_dic[label]=tk.Label(self.root,text=count_train_after,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
             self.TRAIN_POST_count_dic[label].grid(row=i+1,column=j+9,sticky='nw')
             i+=1
@@ -1537,9 +1636,18 @@ class IMGAug_JPGS_ANNOS:
 if __name__=='__main__':
     #path_JPEGImages=r"/media/steven/Elements/Drone_Videos/Combined_transporter9_only_upto_5_18_2022/JPEGImages"
     #path_Annotations=r"/media/steven/Elements/Drone_Videos/Combined_transporter9_only_upto_5_18_2022/Annotations"
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--path_JPEGImages",type=str,default='None',help='path JPEGImages')
+    ap.add_argument("--path_Annotations",type=str,default='None',help='path Annotations')
+    args = vars(ap.parse_args())
+    path_JPEGImages=args['path_JPEGImages']
+    path_Annotations=args['path_Annotations']
     get_default_settings()
-    main_front=main_entry(root_tk)
-    main_front.root.mainloop()
-    root_tk=tk.Tk()
-    myaug=IMGAug_JPGS_ANNOS()
+    if path_JPEGImages=='None' or path_Annotations=='None':
+        
+        main_front=main_entry(root_tk)
+        main_front.root.mainloop()
+        root_tk=tk.Tk()
+    myaug=IMGAug_JPGS_ANNOS(path_Annotations,path_JPEGImages)
     myaug.root.mainloop()
