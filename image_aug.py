@@ -1009,8 +1009,8 @@ class IMGAug_JPGS_ANNOS:
         for unique_label in tqdm(self.unique_names):
             self.unique_label_count_train=0
             self.unique_label_count_test=0
-            current_jpegs=os.listdir(path_JPEGImages)
-            current_jpegs=[os.path.join(path_JPEGImages,w) for w in current_jpegs if w.find('.jpg')!=-1]
+            current_jpegs=os.listdir(self.path_JPEGImages)
+            current_jpegs=[os.path.join(self.path_JPEGImages,w) for w in current_jpegs if w.find('.jpg')!=-1]
             self.df=self.df[self.df['JPEGImages'].isin(current_jpegs)].reset_index().drop('index',axis=1)
             self.df_i=self.df[self.df['label_i']==unique_label].copy()
             print('NUMBER OF OBJECTS FOR "{}" == "{}"'.format(unique_label,len(self.df_i)))
@@ -1649,5 +1649,8 @@ if __name__=='__main__':
         main_front=main_entry(root_tk)
         main_front.root.mainloop()
         root_tk=tk.Tk()
-    myaug=IMGAug_JPGS_ANNOS(path_Annotations,path_JPEGImages)
-    myaug.root.mainloop()
+        myaug=IMGAug_JPGS_ANNOS(path_Annotations,path_JPEGImages)
+        myaug.root.mainloop()
+    else:
+        myaug=IMGAug_JPGS_ANNOS(path_Annotations,path_JPEGImages)
+        myaug.root.mainloop()
