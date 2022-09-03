@@ -1037,13 +1037,19 @@ class IMGAug_JPGS_ANNOS:
                         for jpg in tqdm(backup_jpegs):
                             if os.path.exists(os.path.join(self.BACKUP_JPEGImages,os.path.basename(jpg))):
                                 os.remove(os.path.join(self.BACKUP_JPEGImages,os.path.basename(jpg)))
-                            shutil.move(jpg,self.BACKUP_JPEGImages)
+                            try:
+                                shutil.move(jpg,self.BACKUP_JPEGImages)
+                            except:
+                                print('ERROR moving {}'.format(jpg))
                     if len(backup_annos)>0:
                         print('Moving extra annos to BACKUP_Annotations')
                         for anno in tqdm(backup_annos):
                             if os.path.exists(os.path.join(self.BACKUP_Annotations,os.path.basename(anno))):
                                 os.remove(os.path.join(self.BACKUP_Annotations,os.path.basename(anno)))
-                            shutil.move(anno,self.BACKUP_Annotations)
+                            try:
+                                shutil.move(anno,self.BACKUP_Annotations)
+                            except:
+                                print('ERROR moving {}'.format(anno))
                     self.df_i=self.df_i.loc[0:self.MAX_KEEP]
                 else:
                     tmp_len=len(self.df_i)
