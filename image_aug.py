@@ -25,6 +25,7 @@ Python 3 + Tkinter + Darknet YOLO
 '''
 import codecs
 import numpy as np
+
 import functools
 import time
 import PIL
@@ -62,6 +63,7 @@ import shutil
 from functools import partial
 from threading import Thread
 import traceback
+from imgaug import parameters as iap
 XML_EXT = '.xml'
 DEFAULT_ENCODING = 'utf-8'
 ENCODE_METHOD = DEFAULT_ENCODING
@@ -418,6 +420,10 @@ class IMGAug_JPGS_ANNOS:
         self.JPG_EXT=DEFAULT_SETTINGS.JPG_EXT
         self.COLOR=DEFAULT_SETTINGS.COLOR
         self.MAX_KEEP=DEFAULT_SETTINGS.MAX_KEEP #'2000'
+        self.open_aug_jpeg_label_var=tk.StringVar()
+        self.open_aug_jpeg_label_var.set('None')
+        self.open_aug_anno_label_var=tk.StringVar()
+        self.open_aug_anno_label_var.set('None')
         
         self.get_update_background_img()
 
@@ -591,6 +597,50 @@ class IMGAug_JPGS_ANNOS:
         self.var_sometimes_GaussianBlur_frac_INIT=DEFAULT_SETTINGS.var_sometimes_GaussianBlur_frac_INIT
         self.var_sometimes_GaussianBlur_frac.set(self.var_sometimes_GaussianBlur_frac_INIT)
 
+        var_AffineRotate_INIT=1
+        var_AffineRotate_frac1_INIT="-45,-30,-15,-10,-5,5,10,15,30,45"
+        var_sometimes_AffineRotate_frac_INIT='0.5'
+        self.var_AffineRotate=tk.IntVar()
+        try:
+            self.var_AffineRotate_INIT=DEFAULT_SETTINGS.var_AffineRotate_INIT
+        except:
+            print('self.var_AffineRotate_INIT NOT FOUND in DEFAULT_SETTINGS')
+            self.var_AffineRotate_INIT= var_AffineRotate_INIT
+        self.var_AffineRotate.set(self.var_AffineRotate_INIT)
+        self.var_AffineRotate_frac1=tk.StringVar()
+        try:
+            self.var_AffineRotate_frac1_INIT=DEFAULT_SETTINGS.var_AffineRotate_frac1_INIT
+        except:
+            print('self.var_AffineRotate_frac1_INIT  NOT FOUND in DEFAULT_SETTINGS')
+            self.var_AffineRotate_frac1_INIT=var_AffineRotate_frac1_INIT
+        self.var_AffineRotate_frac1.set(self.var_AffineRotate_frac1_INIT)
+        self.var_sometimes_AffineRotate_frac=tk.StringVar()
+        try:
+            self.var_sometimes_AffineRotate_frac_INIT=DEFAULT_SETTINGS.var_sometimes_AffineRotate_frac_INIT
+        except:
+            print('self.var_sometimes_AffineRotate_frac_INIT NOT FOUND in DEFAULT_SETTINGS')
+            self.var_sometimes_AffineRotate_frac_INIT=var_sometimes_AffineRotate_frac_INIT
+        self.var_sometimes_AffineRotate_frac.set(self.var_sometimes_Affine_frac_INIT)
+
+        var_FakeImage_INIT=1
+        var_sometimes_FakeImage_frac_INIT='0.5'
+        self.var_FakeImage=tk.IntVar()
+        try:
+            self.var_FakeImage_INIT=DEFAULT_SETTINGS.var_FakeImage_INIT
+        except:
+            print('self.var_FakeImage_INIT NOT FOUND in DEFAULT_SETTINGS')
+            self.var_FakeImage_INIT= var_FakeImage_INIT
+        self.var_FakeImage.set(self.var_FakeImage_INIT)
+        self.var_FakeImage_frac1=tk.StringVar()
+        self.var_sometimes_FakeImage_frac=tk.StringVar()
+        try:
+            self.var_sometimes_FakeImage_frac_INIT=DEFAULT_SETTINGS.var_sometimes_FakeImage_frac_INIT
+        except:
+            print('self.var_sometimes_FakeImage_frac_INIT NOT FOUND in DEFAULT_SETTINGS')
+            self.var_sometimes_FakeImage_frac_INIT=var_sometimes_FakeImage_frac_INIT           
+
+        self.var_sometimes_FakeImage_frac.set(self.var_sometimes_FakeImage_frac_INIT)
+
         self.c_HEADER1_label=tk.Label(self.root,text='Img Aug Selection',bg=self.root_bg,fg=self.root_fg,font=('Arial 14 underline'))
         self.c_HEADER1_label.grid(row=12,column=2,sticky='sw')
 
@@ -699,6 +749,25 @@ class IMGAug_JPGS_ANNOS:
         self.c_GaussianBlur_sometimes_frac_label=tk.Label(self.root,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
         self.c_GaussianBlur_sometimes_frac_label.grid(row=28,column=5,sticky='ne')
 
+
+        self.c_AffineRotate = ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text='Random Affine Rotation',variable=self.var_AffineRotate, onvalue=1, offvalue=0)
+        self.c_AffineRotate.grid(row=29,column=2,sticky='sw')
+        self.c_AffineRotate_frac1_entry=tk.Entry(self.root,textvariable=self.var_AffineRotate_frac1)
+        self.c_AffineRotate_frac1_entry.grid(row=29,column=3,sticky='sw')
+        self.c_AffineRotate_frac1_label=tk.Label(self.root,text='Rotation List',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_AffineRotate_frac1_label.grid(row=30,column=3,sticky='nw')
+        self.c_AffineRotate_sometimes_frac_entry=tk.Entry(self.root,textvariable=self.var_sometimes_AffineRotate_frac)
+        self.c_AffineRotate_sometimes_frac_entry.grid(row=29,column=5,sticky='se')
+        self.c_AffineRotate_sometimes_frac_label=tk.Label(self.root,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_AffineRotate_sometimes_frac_label.grid(row=30,column=5,sticky='ne')
+
+        self.c_FakeImage = ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text='Fake Background Image',variable=self.var_FakeImage, onvalue=1, offvalue=0)
+        self.c_FakeImage.grid(row=31,column=2,sticky='sw')
+        self.c_FakeImage_sometimes_frac_entry=tk.Entry(self.root,textvariable=self.var_sometimes_FakeImage_frac)
+        self.c_FakeImage_sometimes_frac_entry.grid(row=31,column=5,sticky='se')
+        self.c_FakeImage_sometimes_frac_label=tk.Label(self.root,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_FakeImage_sometimes_frac_label.grid(row=32,column=5,sticky='ne')
+
         self.load_my_imgs()
 
         self.MAX_AUGS=DEFAULT_SETTINGS.MAX_AUGS #number of augmentations per class
@@ -708,6 +777,8 @@ class IMGAug_JPGS_ANNOS:
         self.MAX_AUGS_entry.grid(row=19,column=1,sticky='sw')
         self.MAX_AUGS_label=tk.Label(self.root,text='# Augs per Class',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.MAX_AUGS_label.grid(row=20,column=1,sticky='nw')
+
+        self.labelImg_buttons()
 
     def save_settings(self,save_root='libs'):
         self.var_sometimes_INIT=self.var_sometimes.get()
@@ -736,6 +807,12 @@ class IMGAug_JPGS_ANNOS:
         self.var_GaussianBlur_INIT=self.var_GaussianBlur.get()
         self.var_GaussianBlur_frac1_INIT=self.var_GaussianBlur_frac1.get()
         self.var_sometimes_GaussianBlur_frac_INIT=self.var_sometimes_GaussianBlur_frac.get()
+        self.var_AffineRotate_INIT=self.var_AffineRotate.get()
+        self.var_AffineRotate_frac1_INIT=self.var_AffineRotate_frac1.get()
+        self.var_sometimes_AffineRotate_frac_INIT=self.var_sometimes_AffineRotate_frac.get()
+        self.var_FakeImage_INIT=self.var_FakeImage.get()
+        self.var_FakeImage_frac1=self.var_FakeImage_frac1.get()
+
         self.PREFIX=self.PREFIX_VAR.get()
         if os.path.exists('libs/DEFAULT_SETTINGS.py'):
             f=open('libs/DEFAULT_SETTINGS.py','r')
@@ -772,6 +849,63 @@ class IMGAug_JPGS_ANNOS:
             f=open('{}/{}.py'.format(save_root,prefix_save.replace('-','_')),'w')
             wrote=[f.writelines(w) for w in f_new]
             f.close()
+    def cleanup(self):
+        self.top.destroy()
+    def popupWindow_labelImg(self):
+        try:
+            self.top.destroy()
+        except:
+            pass
+        self.top=tk.Toplevel(self.root)
+        self.top.geometry( "{}x{}".format(int(self.root.winfo_screenwidth()*0.95//1.1),int(self.root.winfo_screenheight()*0.95//1.1)) )
+        self.top.title('LAUNCH labelImg?')
+        self.top.configure(background = 'black')
+        self.b=Button(self.top,text='Close',command=self.cleanup,bg=DEFAULT_SETTINGS.root_fg, fg=DEFAULT_SETTINGS.root_bg)
+        self.b.grid(row=1,column=0,sticky='se')
+        self.submit_LABELIMG=Button(self.top,image=self.icon_labelImg,command=partial(self.open_labelImg,False),bg=DEFAULT_SETTINGS.root_fg, fg=DEFAULT_SETTINGS.root_bg)
+        self.submit_LABELIMG.grid(row=0,column=1,sticky='se')
+        self.submit_LABELIMG_label=tk.Label(self.top,text="Open Original Dataset",bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
+        self.submit_LABELIMG_label.grid(row=1,column=1,sticky='ne')
+        if os.path.exists(self.open_aug_jpeg_label_var.get()) and os.path.exists(self.open_aug_anno_label_var.get()):
+            self.path_JPEGImages_CUSTOM=self.open_aug_jpeg_label_var.get()
+            self.path_Annotations_CUSTOM=self.open_aug_anno_label_var.get()   
+            self.submit_LABELIMG_CUSTOM=Button(self.top,image=self.icon_labelImg,command=partial(self.open_labelImg,True),bg=DEFAULT_SETTINGS.root_fg, fg=DEFAULT_SETTINGS.root_bg)
+            self.submit_LABELIMG_CUSTOM.grid(row=2,column=1,sticky='se')
+            self.submit_LABELIMG_label_CUSTOM=tk.Label(self.top,text="Open Augmented Dataset",bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
+            self.submit_LABELIMG_label_CUSTOM.grid(row=3,column=1,sticky='ne')
+
+        
+    def labelImg_buttons(self):
+        if os.path.exists('libs/labelImg_path.py'):
+
+            self.labelImg_button=Button(self.root,image=self.icon_labelImg,command=self.popupWindow_labelImg,bg=self.root_bg,fg=self.root_fg)
+            self.labelImg_button.grid(row=1,column=0,sticky='se')
+            self.labelImg_button_note=tk.Label(self.root,text='LabelImg',bg=self.root_bg,fg=self.root_fg,font=("Arial", 9))
+            self.labelImg_button_note.grid(row=2,column=0,sticky='ne')  
+
+    def open_labelImg(self,custom):
+        from libs import labelImg_path
+        from multiprocessing import Process
+        self.path_labelImg=labelImg_path.path
+        self.path_labelImg_predefined_classes_file=os.path.join(os.path.dirname(self.names_path),'predefined_classes.txt')
+        shutil.copy(self.names_path,self.path_labelImg_predefined_classes_file)
+        if os.path.exists(self.open_aug_jpeg_label_var.get()) and os.path.exists(self.open_aug_anno_label_var.get()):
+            self.path_JPEGImages_CUSTOM=self.open_aug_jpeg_label_var.get()
+            self.path_Annotations_CUSTOM=self.open_aug_anno_label_var.get()
+
+        if custom:
+            pass
+        else:
+            self.path_JPEGImages_CUSTOM=self.path_JPEGImages
+            self.path_Annotations_CUSTOM=self.path_Annotations
+        self.path_labelImg_save_dir=self.path_Annotations_CUSTOM
+        self.path_labelImg_image_dir=self.path_JPEGImages_CUSTOM
+        #self.PYTHON_PATH="python3"
+        if os.path.exists(self.path_labelImg):
+            self.cmd_i='{} "{}" "{}" "{}" "{}"'.format(self.PYTHON_PATH ,self.path_labelImg,self.path_labelImg_image_dir,self.path_labelImg_predefined_classes_file,self.path_labelImg_save_dir)
+            self.labelImg=Process(target=self.run_cmd,args=(self.cmd_i,)).start()
+        else:
+            self.popup_text='Please provide a valid labelImg.py path. \n  Current path is: {}'.format(self.path_labelImg)
 
     def get_update_background_img(self):
         self.image=Image.open(self.root_background_img)
@@ -1181,6 +1315,36 @@ class IMGAug_JPGS_ANNOS:
         self.TRAIN_SPLIT_label=tk.Label(self.root,text='TRAIN SPLIT',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.TRAIN_SPLIT_label.grid(row=16,column=1,sticky='nw')
 
+    def put_fake_background(self,img,bbs):
+        path_background='FAKE_BACKGROUNDS'
+        if os.path.exists(path_background):
+            possible_fake_backgrounds=os.listdir(path_background)
+            if len(possible_fake_backgrounds)>0:
+                possible_fake_backgrounds=[os.path.join(path_background,w) for w in possible_fake_backgrounds if os.path.isfile(os.path.join(path_background,w)) and w.find('.jpg')!=-1]
+                if len(possible_fake_backgrounds)>0:
+                    path_background_i=np.random.choice(possible_fake_backgrounds)
+                    img_og=img
+                    for i,bb in enumerate(bbs):
+                        #print('path_background_i',path_background_i)
+                        #print('bbs',bb)
+                        xmin=int(bb.x1)
+                        xmax=int(bb.x2)
+                        ymin=int(bb.y1)
+                        ymax=int(bb.y2)
+                        #print('xmin','ymin','xmax','ymax')
+                        #print(xmin,ymin,xmax,ymax)
+                        img_i=img_og
+                        img_i_H=img_i.shape[1]
+                        img_i_W=img_i.shape[0]
+                        if i==0:
+                            img_fake=cv2.imread(path_background_i)
+                            img_fake=cv2.resize(img_fake,(img_i_H,img_i_W))
+                        if len(img_i.shape)==3:
+                            img_fake[ymin:ymax,xmin:xmax,:]=img_i[ymin:ymax,xmin:xmax,:]
+                        else:
+                            img_fake[ymin:ymax,xmin:xmax]=img_i[ymin:ymax,xmin:xmax]
+                        img=img_fake
+        return img,bbs
         
     def augment_my_imgs(self):
         self.load_my_imgs()
@@ -1635,7 +1799,48 @@ class IMGAug_JPGS_ANNOS:
                 else:
                     sometimes_frac_GaussianBlur=sometimes_frac
                 self.img_i,self.bbs=iaa.Sometimes(sometimes_frac_GaussianBlur,iaa.GaussianBlur(sigma=(0.0,GaussianBlur_frac)))(image=self.img_i,bounding_boxes=self.bbs)
+        if self.var_AffineRotate.get()==1:
+            try:
+                str_rotations=self.var_AffineRotate_frac1.get()
+                rotations=str_rotations.split(',')
+                rotations=[int(w) for w in rotations]
+            except:
+                str_rotations="-45,-30,-15,-10,-5,5,10,15,30,45"
+                print(f'Exception using {str_rotations} for min scale for Affine_frac')
 
+                rotations=str_rotations.split(',')
+                rotations=[int(w) for w in rotations]
+
+            if self.var_sometimes.get()!=1:
+                #self.img_i,self.bbs=iaa.Affine(rotate=rot_frac)(image=self.img_i,bounding_boxes=self.bbs)
+                self.img_i,self.bbs=iaa.Affine(rotate=iap.Deterministic(np.random.choice(rotations)))(image=self.img_i,bounding_boxes=self.bbs)
+            else:
+                if self.var_sometimes_AffineRotate_frac.get()!=self.var_sometimes_frac.get():
+                    try:
+                        sometimes_frac_AffineRotate=float(self.var_sometimes_AffineRotate_frac.get())
+                    except:
+                        print('Exception using sometimes fraction')
+                        sometimes_frac_AffineRotate=sometimes_frac
+                else:
+                    sometimes_frac_AffineRotate=sometimes_frac
+                #self.img_i,self.bbs=iaa.Sometimes(sometimes_frac_Affine,iaa.Affine(rotate=rot_frac))(image=self.img_i,bounding_boxes=self.bbs)
+                self.img_i,self.bbs=iaa.Sometimes(sometimes_frac_AffineRotate,iaa.Affine(rotate=iap.Deterministic(np.random.choice(rotations))))(image=self.img_i,bounding_boxes=self.bbs)
+        if self.var_FakeImage.get()==1:
+            if self.var_sometimes.get()!=1:
+                self.img_i,self.bbs=self.put_fake_background(self.img_i,self.bbs)
+            else:
+                if self.var_sometimes_FakeImage_frac.get()!=self.var_sometimes_frac.get():
+                    try:
+                        sometimes_frac_FakeImage=float(self.var_sometimes_FakeImage_frac.get())
+                    except:
+                        print('Exception using sometimes fraction')
+                        sometimes_frac_FakeImage=sometimes_frac
+                else:
+                    sometimes_frac_FakeImage=sometimes_frac
+                random_i=np.random.random()
+                if sometimes_frac_FakeImage>random_i:
+                    self.img_i,self.bbs=self.put_fake_background(self.img_i,self.bbs)
+                
     def close(self,event):
         self.root.destroy()
 
