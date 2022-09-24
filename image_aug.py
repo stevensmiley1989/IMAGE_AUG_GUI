@@ -346,6 +346,9 @@ else:
         open_cmd='xdg-open'
     else:
         open_cmd='start'
+if os.path.exists('libs/open_cmd.py'):
+    from libs import open_cmd
+    open_cmd=open_cmd.open_cmd
 root_tk=tk.Tk()
 ROOT_H=int(root_tk.winfo_screenheight()*0.95)
 ROOT_W=int(root_tk.winfo_screenwidth()*0.95)
