@@ -1,0 +1,1 @@
+open_cmd='code'
