@@ -148,12 +148,12 @@ class main_entry:
         print(self.df_settings)
         self.checkd_buttons={}
         self.checkd_vars={}
-        self.checkd_label=tk.Label(self.root,text='Dataset',bg=self.root_bg,fg=self.root_fg,font=('Arial 14 underline'))
+        self.checkd_label=tk.Label(self.frame_table,text='Dataset',bg=self.root_bg,fg=self.root_fg,font=('Arial 14 underline'))
         self.checkd_label.grid(row=1,column=2,sticky='nw')
         for i,label in enumerate(list(self.df_settings['Annotations'].unique())):
             self.checkd_vars[label]=tk.IntVar()
             self.checkd_vars[label].set(1)
-            self.checkd_buttons[file]=ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text=label,variable=self.checkd_vars[label], command=self.update_checks,onvalue=1, offvalue=0)
+            self.checkd_buttons[file]=ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text=label,variable=self.checkd_vars[label], command=self.update_checks,onvalue=1, offvalue=0)
             self.checkd_buttons[file].grid(row=i+1,column=2,sticky='sw')         
 
 
@@ -166,7 +166,7 @@ class main_entry:
         self.USER=""
         self.USER_SELECTION=tk.StringVar()
         self.dropdown_menu()
-        self.submit_label=Button(self.root,text='Submit',command=self.submit,bg=self.root_fg,fg=self.root_bg,font=('Arial',12))
+        self.submit_label=Button(self.frame_table,text='Submit',command=self.submit,bg=self.root_fg,fg=self.root_bg,font=('Arial',12))
         self.submit_label.grid(row=1,column=5,sticky='se')
 
 
@@ -197,10 +197,10 @@ class main_entry:
             self.USER_SELECTION.set(self.USER)
         else:
             self.USER_SELECTION.set(self.SETTINGS_FILE_LIST[0])
-        self.dropdown=tk.OptionMenu(self.root,self.USER_SELECTION,*self.SETTINGS_FILE_LIST)
+        self.dropdown=tk.OptionMenu(self.frame_table,self.USER_SELECTION,*self.SETTINGS_FILE_LIST)
         self.dropdown.grid(row=1,column=9,sticky='sw')
         
-        self.dropdown_label=Button(self.root,image=self.icon_single_file,command=self.run_cmd_libs,bg=self.root_bg,fg=self.root_fg,font=('Arial',12))
+        self.dropdown_label=Button(self.frame_table,image=self.icon_single_file,command=self.run_cmd_libs,bg=self.root_bg,fg=self.root_fg,font=('Arial',12))
         self.dropdown_label.grid(row=1,column=8,sticky='sw')
        
     def run_cmd_libs(self):
@@ -215,13 +215,69 @@ class main_entry:
         SAVED_SETTINGS_PATH=os.path.join('libs/{}'.format(self.USER))
         self.close()
 
+    # def get_update_background_img(self):
+    #     self.image=Image.open(self.root_background_img)
+    #     self.image=self.image.resize((self.root_W,self.root_H),Image.ANTIALIAS)
+    #     self.bg=ImageTk.PhotoImage(self.image)
+    #     self.canvas=tk.Canvas(self.root,width=self.root_W,height=self.root_H)
+    #     self.canvas.grid(row=0,column=0,columnspan=self.canvas_columnspan,rowspan=self.canvas_rowspan,sticky='nw')
+    #     self.canvas.create_image(0,0,image=self.bg,anchor='nw')
     def get_update_background_img(self):
-        self.image=Image.open(self.root_background_img)
-        self.image=self.image.resize((self.root_W,self.root_H),Image.ANTIALIAS)
-        self.bg=ImageTk.PhotoImage(self.image)
-        self.canvas=tk.Canvas(self.root,width=self.root_W,height=self.root_H)
-        self.canvas.grid(row=0,column=0,columnspan=self.canvas_columnspan,rowspan=self.canvas_rowspan,sticky='nw')
-        self.canvas.create_image(0,0,image=self.bg,anchor='nw')
+            global frame_table
+            self.image=Image.open(self.root_background_img)
+            self.image=self.image.resize((self.root_W,self.root_H),Image.ANTIALIAS)
+            self.bg=ImageTk.PhotoImage(self.image)
+            # self.canvas_og=tk.Canvas(self.frame_table1,width=self.root_W,height=self.root_H)
+            # self.canvas_og.grid(row=0,column=0,columnspan=self.canvas_columnspan,rowspan=self.canvas_rowspan,sticky='nw')
+            # self.canvas_og.create_image(0,0,image=self.bg,anchor='nw')
+            self.root.columnconfigure(0,weight=1)
+            self.root.rowconfigure(0,weight=1)
+            self.FMas=tk.Frame(self.root,bg='Black')
+            self.FMas.grid(sticky=(tk.N,tk.E,tk.S,tk.W),padx=20,pady=20)
+            self.FMas.columnconfigure(0,weight=1)
+            self.frame_canvas=tk.Frame(self.FMas)
+            self.frame_canvas.grid(row=0,column=0,sticky='nw')
+            self.frame_canvas.grid_rowconfigure(0,weight=1)
+            self.frame_canvas.grid_columnconfigure(0,weight=1)
+            self.frame_canvas.grid_propagate(False)
+
+            self.canvas=tk.Canvas(self.frame_canvas,bg='black')
+            self.canvas.grid(row=0,column=0,sticky='news')
+            self.label = tk.Label(self.canvas, image = self.bg)
+            self.label.grid(row=0,column=0,sticky='news')
+            self.style3=ttk.Style()
+            self.style3.configure('Vertical.TScrollbar',
+                                background='purple',
+                                foreground='black',
+                                arrowcolor='black',
+                                activebackground='yellow')
+            self.style3.configure('Horizontal.TScrollbar',
+                                background='purple',
+                                foreground='black',
+                                arrowcolor='black',
+                                activebackground='yellow')
+            self.vsbar=ttk.Scrollbar(self.frame_canvas,orient="vertical",command=self.canvas.yview,style="Vertical.TScrollbar")
+            self.vsbar.grid(row=0,column=1,sticky='nes',pady=1)
+            self.hsbar=ttk.Scrollbar(self.frame_canvas,orient="horizontal",command=self.canvas.xview,style="Horizontal.TScrollbar")
+
+            self.hsbar.grid(row=0,column=0,sticky='new',padx=1)
+            self.canvas.configure(yscrollcommand=self.vsbar.set)
+            self.canvas.configure(xscrollcommand=self.hsbar.set)
+            self.frame_table=tk.Frame(self.canvas,bg='black',padx=20,pady=20)
+
+            self.canvas.create_window((0,0),window=self.frame_table,anchor='nw')
+
+
+            total_width=self.root_W*1.#080#width_i+width_j+self.hsbar.winfo_width()
+            total_height=self.root_H*1.#height_i+height_j+self.vsbar.winfo_height()
+            # Create a Label Widget to display the text or Image
+
+            self.canvas.create_image((total_width*0.75,total_height*0.75),image=self.bg,anchor='nw')
+            print('total_width',total_width)
+            print('total_height',total_height)
+            self.frame_canvas.config(width=total_width,height=total_height)
+            self.canvas.config(scrollregion=self.canvas.bbox('all'))
+            frame_table=self.frame_table
 
     def close(self):
         self.root.destroy()
@@ -444,37 +500,37 @@ class IMGAug_JPGS_ANNOS:
         self.open_anno_label_var=tk.StringVar()
         self.open_anno_label_var.set(self.path_Annotations)
 
-        self.open_anno_button=Button(self.root,image=self.icon_folder,command=partial(self.select_folder,self.path_Annotations,'Open Annotations Folder',self.open_anno_label_var),bg=self.root_bg,fg=self.root_fg)
+        self.open_anno_button=Button(self.frame_table,image=self.icon_folder,command=partial(self.select_folder,self.path_Annotations,'Open Annotations Folder',self.open_anno_label_var),bg=self.root_bg,fg=self.root_fg)
         self.open_anno_button.grid(row=2,column=1,sticky='se')
-        self.open_anno_note=tk.Label(self.root,text="1.a \n Annotations dir",bg=self.root_bg,fg=self.root_fg,font=("Arial", 8))
+        self.open_anno_note=tk.Label(self.frame_table,text="1.a \n Annotations dir",bg=self.root_bg,fg=self.root_fg,font=("Arial", 8))
         self.open_anno_note.grid(row=3,column=1,sticky='ne')
 
         cmd_i=open_cmd+" '{}'".format(self.open_anno_label_var.get())
-        self.open_anno_label=Button(self.root,textvariable=self.open_anno_label_var, command=partial(self.run_cmd,cmd_i),bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
+        self.open_anno_label=Button(self.frame_table,textvariable=self.open_anno_label_var, command=partial(self.run_cmd,cmd_i),bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
 
         self.open_anno_label.grid(row=2,column=2,columnspan=50,sticky='sw')
 
         self.open_jpeg_label_var=tk.StringVar()
         self.open_jpeg_label_var.set(self.path_JPEGImages)
 
-        self.open_jpeg_button=Button(self.root,image=self.icon_folder,command=partial(self.select_folder,self.path_JPEGImages,'Open JPEGImages Folder',self.open_jpeg_label_var),bg=self.root_bg,fg=self.root_fg)
+        self.open_jpeg_button=Button(self.frame_table,image=self.icon_folder,command=partial(self.select_folder,self.path_JPEGImages,'Open JPEGImages Folder',self.open_jpeg_label_var),bg=self.root_bg,fg=self.root_fg)
         self.open_jpeg_button.grid(row=4,column=1,sticky='se')
-        self.open_jpeg_note=tk.Label(self.root,text="1.b \n JPEGImages dir",bg=self.root_bg,fg=self.root_fg,font=("Arial", 8))
+        self.open_jpeg_note=tk.Label(self.frame_table,text="1.b \n JPEGImages dir",bg=self.root_bg,fg=self.root_fg,font=("Arial", 8))
         self.open_jpeg_note.grid(row=5,column=1,sticky='ne')
 
         cmd_i=open_cmd+" '{}'".format(self.open_jpeg_label_var.get())
-        self.open_jpeg_label=Button(self.root,textvariable=self.open_jpeg_label_var, command=partial(self.run_cmd,cmd_i),bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
+        self.open_jpeg_label=Button(self.frame_table,textvariable=self.open_jpeg_label_var, command=partial(self.run_cmd,cmd_i),bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
 
         self.open_jpeg_label.grid(row=4,column=2,columnspan=50,sticky='sw')
 
-        self.save_settings_button=Button(self.root,image=self.icon_save_settings,command=self.save_settings,bg=self.root_bg,fg=self.root_fg)
+        self.save_settings_button=Button(self.frame_table,image=self.icon_save_settings,command=self.save_settings,bg=self.root_bg,fg=self.root_fg)
         self.save_settings_button.grid(row=1,column=4,sticky='se')
-        self.save_settings_note=tk.Label(self.root,text='Save Settings',bg=self.root_bg,fg=self.root_fg,font=("Arial", 9))
+        self.save_settings_note=tk.Label(self.frame_table,text='Save Settings',bg=self.root_bg,fg=self.root_fg,font=("Arial", 9))
         self.save_settings_note.grid(row=2,column=4,sticky='ne')
 
-        self.submit_button=Button(self.root,text='Submit',command=self.augment_my_imgs,bg=self.root_fg,fg=self.root_bg,font=("Arial 14 bold"))
+        self.submit_button=Button(self.frame_table,text='Submit',command=self.augment_my_imgs,bg=self.root_fg,fg=self.root_bg,font=("Arial 14 bold"))
         self.submit_button.grid(row=21,column=1,sticky='s')
-        #self.submit_note=tk.Label(self.root,text="Submit",bg=self.root_bg,fg=self.root_fg,font=("Arial", 8))
+        #self.submit_note=tk.Label(self.frame_table,text="Submit",bg=self.root_bg,fg=self.root_fg,font=("Arial", 8))
         #self.submit_note.grid(row=18,column=1,sticky='ne')
         self.style3=ttk.Style()
         self.style3.configure('Normal.TRadiobutton',
@@ -487,27 +543,27 @@ class IMGAug_JPGS_ANNOS:
 
         self.PREFIX_VAR=tk.StringVar()
         self.PREFIX_VAR.set(self.PREFIX)
-        self.PREFIX_entry=tk.Entry(self.root,textvariable=self.PREFIX_VAR)
+        self.PREFIX_entry=tk.Entry(self.frame_table,textvariable=self.PREFIX_VAR)
         self.PREFIX_entry.grid(row=13,column=1,sticky='sw')
-        self.PREFIX_label=tk.Label(self.root,text='Annotation PREFIX',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.PREFIX_label=tk.Label(self.frame_table,text='Annotation PREFIX',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.PREFIX_label.grid(row=14,column=1,sticky='nw')
 
         self.TRAIN_SPLIT_VAR=tk.StringVar()
         self.TRAIN_SPLIT_VAR.set(self.TRAIN_SPLIT)
-        self.TRAIN_SPLIT_entry=tk.Entry(self.root,textvariable=self.TRAIN_SPLIT_VAR)
+        self.TRAIN_SPLIT_entry=tk.Entry(self.frame_table,textvariable=self.TRAIN_SPLIT_VAR)
         self.TRAIN_SPLIT_entry.grid(row=15,column=1,sticky='sw')
-        self.TRAIN_SPLIT_button=Button(self.root,image=self.icon_divide,command=self.load_my_imgs)
+        self.TRAIN_SPLIT_button=Button(self.frame_table,image=self.icon_divide,command=self.load_my_imgs)
         self.TRAIN_SPLIT_button.grid(row=15,column=0,sticky='se')
-        self.TRAIN_SPLIT_label=tk.Label(self.root,text='TRAIN SPLIT',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.TRAIN_SPLIT_label=tk.Label(self.frame_table,text='TRAIN SPLIT',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.TRAIN_SPLIT_label.grid(row=16,column=1,sticky='nw')
 
         self.MAX_KEEP_VAR=tk.StringVar()
         self.MAX_KEEP_VAR.set(self.MAX_KEEP)
-        self.MAX_KEEP_entry=tk.Entry(self.root,textvariable=self.MAX_KEEP_VAR)
+        self.MAX_KEEP_entry=tk.Entry(self.frame_table,textvariable=self.MAX_KEEP_VAR)
         self.MAX_KEEP_entry.grid(row=17,column=1,sticky='sw')
-        self.MAX_KEEP_button=Button(self.root,image=self.icon_yolo_objects,command=self.load_my_imgs)
+        self.MAX_KEEP_button=Button(self.frame_table,image=self.icon_yolo_objects,command=self.load_my_imgs)
         self.MAX_KEEP_button.grid(row=17,column=0,sticky='se')
-        self.MAX_KEEP_label=tk.Label(self.root,text='MAX # per CLASS',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.MAX_KEEP_label=tk.Label(self.frame_table,text='MAX # per CLASS',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.MAX_KEEP_label.grid(row=18,column=1,sticky='nw')
 
         self.var_sometimes=tk.IntVar()
@@ -644,131 +700,131 @@ class IMGAug_JPGS_ANNOS:
 
         self.var_sometimes_FakeImage_frac.set(self.var_sometimes_FakeImage_frac_INIT)
 
-        self.c_HEADER1_label=tk.Label(self.root,text='Img Aug Selection',bg=self.root_bg,fg=self.root_fg,font=('Arial 14 underline'))
+        self.c_HEADER1_label=tk.Label(self.frame_table,text='Img Aug Selection',bg=self.root_bg,fg=self.root_fg,font=('Arial 14 underline'))
         self.c_HEADER1_label.grid(row=12,column=2,sticky='sw')
 
-        self.c_HEADER2_label=tk.Label(self.root,text='Option 1',bg=self.root_bg,fg=self.root_fg,font=('Arial 10 underline'))
+        self.c_HEADER2_label=tk.Label(self.frame_table,text='Option 1',bg=self.root_bg,fg=self.root_fg,font=('Arial 10 underline'))
         self.c_HEADER2_label.grid(row=12,column=3,sticky='s')
 
-        self.c_HEADER3_label=tk.Label(self.root,text='Option 2',bg=self.root_bg,fg=self.root_fg,font=('Arial 10 underline'))
+        self.c_HEADER3_label=tk.Label(self.frame_table,text='Option 2',bg=self.root_bg,fg=self.root_fg,font=('Arial 10 underline'))
         self.c_HEADER3_label.grid(row=12,column=4,sticky='s')
 
-        self.c_HEADER4_label=tk.Label(self.root,text='Sometimes',bg=self.root_bg,fg=self.root_fg,font=('Arial 10 underline'))
+        self.c_HEADER4_label=tk.Label(self.frame_table,text='Sometimes',bg=self.root_bg,fg=self.root_fg,font=('Arial 10 underline'))
         self.c_HEADER4_label.grid(row=12,column=5,sticky='s')
 
-        self.c_sometimes = ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text='Sometimes',variable=self.var_sometimes, onvalue=1, offvalue=0)
+        self.c_sometimes = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='Sometimes',variable=self.var_sometimes, onvalue=1, offvalue=0)
         self.c_sometimes.grid(row=13,column=2,sticky='sw')
-        self.c_sometimes_frac_entry=tk.Entry(self.root,textvariable=self.var_sometimes_frac)
+        self.c_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_frac)
         self.c_sometimes_frac_entry.grid(row=13,column=3,sticky='sw')
-        self.c_sometimes_frac_label=tk.Label(self.root,text='Fraction - Sometimes',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_sometimes_frac_label=tk.Label(self.frame_table,text='Fraction - Sometimes',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.c_sometimes_frac_label.grid(row=14,column=3,sticky='nw')
 
-        self.c_Fliplr = ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text='Random Horizontal Flip',variable=self.var_Fliplr, onvalue=1, offvalue=0)
+        self.c_Fliplr = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='Random Horizontal Flip',variable=self.var_Fliplr, onvalue=1, offvalue=0)
         self.c_Fliplr.grid(row=15,column=2,sticky='sw')
-        self.c_Fliplr_frac_entry=tk.Entry(self.root,textvariable=self.var_Fliplr_frac)
+        self.c_Fliplr_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_Fliplr_frac)
         self.c_Fliplr_frac_entry.grid(row=15,column=3,sticky='sw')
-        self.c_Fliplr_frac_label=tk.Label(self.root,text='Fraction Random Flip - Horizontal',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_Fliplr_frac_label=tk.Label(self.frame_table,text='Fraction Random Flip - Horizontal',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.c_Fliplr_frac_label.grid(row=16,column=3,sticky='nw')
-        self.c_Fliplr_sometimes_frac_entry=tk.Entry(self.root,textvariable=self.var_sometimes_Fliplr_frac)
+        self.c_Fliplr_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_Fliplr_frac)
         self.c_Fliplr_sometimes_frac_entry.grid(row=15,column=5,sticky='se')
-        self.c_Fliplr_sometimes_frac_label=tk.Label(self.root,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_Fliplr_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
         self.c_Fliplr_sometimes_frac_label.grid(row=16,column=5,sticky='ne')
 
-        self.c_Flipud = ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text='Random Vertical Flip',variable=self.var_Flipud, onvalue=1, offvalue=0)
+        self.c_Flipud = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='Random Vertical Flip',variable=self.var_Flipud, onvalue=1, offvalue=0)
         self.c_Flipud.grid(row=17,column=2,sticky='sw')
-        self.c_Flipud_frac_entry=tk.Entry(self.root,textvariable=self.var_Flipud_frac)
+        self.c_Flipud_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_Flipud_frac)
         self.c_Flipud_frac_entry.grid(row=17,column=3,sticky='sw')
-        self.c_Flipud_frac_label=tk.Label(self.root,text='Fraction Random Flip - Vertical',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_Flipud_frac_label=tk.Label(self.frame_table,text='Fraction Random Flip - Vertical',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.c_Flipud_frac_label.grid(row=18,column=3,sticky='nw')
-        self.c_Flipud_sometimes_frac_entry=tk.Entry(self.root,textvariable=self.var_sometimes_Flipud_frac)
+        self.c_Flipud_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_Flipud_frac)
         self.c_Flipud_sometimes_frac_entry.grid(row=17,column=5,sticky='se')
-        self.c_Flipud_sometimes_frac_label=tk.Label(self.root,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_Flipud_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
         self.c_Flipud_sometimes_frac_label.grid(row=18,column=5,sticky='ne')
     
-        self.c_Crop = ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text='Random Crop',variable=self.var_Crop, onvalue=1, offvalue=0)
+        self.c_Crop = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='Random Crop',variable=self.var_Crop, onvalue=1, offvalue=0)
         self.c_Crop.grid(row=19,column=2,sticky='sw')
-        self.c_Crop_frac1_entry=tk.Entry(self.root,textvariable=self.var_Crop_frac1)
+        self.c_Crop_frac1_entry=tk.Entry(self.frame_table,textvariable=self.var_Crop_frac1)
         self.c_Crop_frac1_entry.grid(row=19,column=3,sticky='sw')
-        self.c_Crop_frac1_label=tk.Label(self.root,text='Percent min',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_Crop_frac1_label=tk.Label(self.frame_table,text='Percent min',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.c_Crop_frac1_label.grid(row=20,column=3,sticky='nw')
-        self.c_Crop_frac2_entry=tk.Entry(self.root,textvariable=self.var_Crop_frac2)
+        self.c_Crop_frac2_entry=tk.Entry(self.frame_table,textvariable=self.var_Crop_frac2)
         self.c_Crop_frac2_entry.grid(row=19,column=4,sticky='sw')
-        self.c_Crop_frac2_label=tk.Label(self.root,text='Percent max',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_Crop_frac2_label=tk.Label(self.frame_table,text='Percent max',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.c_Crop_frac2_label.grid(row=20,column=4,sticky='nw')
-        self.c_Crop_sometimes_frac_entry=tk.Entry(self.root,textvariable=self.var_sometimes_Crop_frac)
+        self.c_Crop_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_Crop_frac)
         self.c_Crop_sometimes_frac_entry.grid(row=19,column=5,sticky='se')
-        self.c_Crop_sometimes_frac_label=tk.Label(self.root,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_Crop_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
         self.c_Crop_sometimes_frac_label.grid(row=20,column=5,sticky='ne')
 
-        self.c_Affine = ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text='Random Affine',variable=self.var_Affine, onvalue=1, offvalue=0)
+        self.c_Affine = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='Random Affine',variable=self.var_Affine, onvalue=1, offvalue=0)
         self.c_Affine.grid(row=21,column=2,sticky='sw')
-        self.c_Affine_frac1_entry=tk.Entry(self.root,textvariable=self.var_Affine_frac1)
+        self.c_Affine_frac1_entry=tk.Entry(self.frame_table,textvariable=self.var_Affine_frac1)
         self.c_Affine_frac1_entry.grid(row=21,column=3,sticky='sw')
-        self.c_Affine_frac1_label=tk.Label(self.root,text='Min Zoom',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_Affine_frac1_label=tk.Label(self.frame_table,text='Min Zoom',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.c_Affine_frac1_label.grid(row=22,column=3,sticky='nw')
-        self.c_Affine_frac2_entry=tk.Entry(self.root,textvariable=self.var_Affine_frac2)
+        self.c_Affine_frac2_entry=tk.Entry(self.frame_table,textvariable=self.var_Affine_frac2)
         self.c_Affine_frac2_entry.grid(row=21,column=4,sticky='sw')
-        self.c_Affine_frac2_label=tk.Label(self.root,text='Max Zoom',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_Affine_frac2_label=tk.Label(self.frame_table,text='Max Zoom',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.c_Affine_frac2_label.grid(row=22,column=4,sticky='nw')
-        self.c_Affine_sometimes_frac_entry=tk.Entry(self.root,textvariable=self.var_sometimes_Affine_frac)
+        self.c_Affine_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_Affine_frac)
         self.c_Affine_sometimes_frac_entry.grid(row=21,column=5,sticky='se')
-        self.c_Affine_sometimes_frac_label=tk.Label(self.root,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_Affine_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
         self.c_Affine_sometimes_frac_label.grid(row=22,column=5,sticky='ne')
 
-        self.c_GrayScale = ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text='Gray Scale',variable=self.var_GrayScale, onvalue=1, offvalue=0)
+        self.c_GrayScale = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='Gray Scale',variable=self.var_GrayScale, onvalue=1, offvalue=0)
         self.c_GrayScale.grid(row=23,column=2,sticky='sw')
-        self.c_GrayScale_frac1_entry=tk.Entry(self.root,textvariable=self.var_GrayScale_frac1)
+        self.c_GrayScale_frac1_entry=tk.Entry(self.frame_table,textvariable=self.var_GrayScale_frac1)
         self.c_GrayScale_frac1_entry.grid(row=23,column=3,sticky='sw')
-        self.c_GrayScale_frac1_label=tk.Label(self.root,text='Max',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_GrayScale_frac1_label=tk.Label(self.frame_table,text='Max',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.c_GrayScale_frac1_label.grid(row=24,column=3,sticky='nw')
-        self.c_GrayScale_sometimes_frac_entry=tk.Entry(self.root,textvariable=self.var_sometimes_GrayScale_frac)
+        self.c_GrayScale_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_GrayScale_frac)
         self.c_GrayScale_sometimes_frac_entry.grid(row=23,column=5,sticky='se')
-        self.c_GrayScale_sometimes_frac_label=tk.Label(self.root,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_GrayScale_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
         self.c_GrayScale_sometimes_frac_label.grid(row=24,column=5,sticky='ne')
 
-        self.c_ColorTemp = ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text='Color Temperature',variable=self.var_ColorTemp, onvalue=1, offvalue=0)
+        self.c_ColorTemp = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='Color Temperature',variable=self.var_ColorTemp, onvalue=1, offvalue=0)
         self.c_ColorTemp.grid(row=25,column=2,sticky='sw')
-        self.c_ColorTemp_frac1_entry=tk.Entry(self.root,textvariable=self.var_ColorTemp_frac1)
+        self.c_ColorTemp_frac1_entry=tk.Entry(self.frame_table,textvariable=self.var_ColorTemp_frac1)
         self.c_ColorTemp_frac1_entry.grid(row=25,column=3,sticky='sw')
-        self.c_ColorTemp_frac1_label=tk.Label(self.root,text='Min Temp (Kelvin)',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_ColorTemp_frac1_label=tk.Label(self.frame_table,text='Min Temp (Kelvin)',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.c_ColorTemp_frac1_label.grid(row=26,column=3,sticky='nw')
-        self.c_ColorTemp_frac2_entry=tk.Entry(self.root,textvariable=self.var_ColorTemp_frac2)
+        self.c_ColorTemp_frac2_entry=tk.Entry(self.frame_table,textvariable=self.var_ColorTemp_frac2)
         self.c_ColorTemp_frac2_entry.grid(row=25,column=4,sticky='sw')
-        self.c_ColorTemp_frac2_label=tk.Label(self.root,text='Max Temp (Kelvin)',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_ColorTemp_frac2_label=tk.Label(self.frame_table,text='Max Temp (Kelvin)',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.c_ColorTemp_frac2_label.grid(row=26,column=4,sticky='nw')
-        self.c_ColorTemp_sometimes_frac_entry=tk.Entry(self.root,textvariable=self.var_sometimes_ColorTemp_frac)
+        self.c_ColorTemp_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_ColorTemp_frac)
         self.c_ColorTemp_sometimes_frac_entry.grid(row=25,column=5,sticky='se')
-        self.c_ColorTemp_sometimes_frac_label=tk.Label(self.root,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_ColorTemp_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
         self.c_ColorTemp_sometimes_frac_label.grid(row=26,column=5,sticky='ne')
 
-        self.c_GaussianBlur = ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text='Gaussian Blur',variable=self.var_GaussianBlur, onvalue=1, offvalue=0)
+        self.c_GaussianBlur = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='Gaussian Blur',variable=self.var_GaussianBlur, onvalue=1, offvalue=0)
         self.c_GaussianBlur.grid(row=27,column=2,sticky='sw')
-        self.c_GaussianBlur_frac1_entry=tk.Entry(self.root,textvariable=self.var_GaussianBlur_frac1)
+        self.c_GaussianBlur_frac1_entry=tk.Entry(self.frame_table,textvariable=self.var_GaussianBlur_frac1)
         self.c_GaussianBlur_frac1_entry.grid(row=27,column=3,sticky='sw')
-        self.c_GaussianBlur_frac1_label=tk.Label(self.root,text='Sigma',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_GaussianBlur_frac1_label=tk.Label(self.frame_table,text='Sigma',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.c_GaussianBlur_frac1_label.grid(row=28,column=3,sticky='nw')
-        self.c_GaussianBlur_sometimes_frac_entry=tk.Entry(self.root,textvariable=self.var_sometimes_GaussianBlur_frac)
+        self.c_GaussianBlur_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_GaussianBlur_frac)
         self.c_GaussianBlur_sometimes_frac_entry.grid(row=27,column=5,sticky='se')
-        self.c_GaussianBlur_sometimes_frac_label=tk.Label(self.root,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_GaussianBlur_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
         self.c_GaussianBlur_sometimes_frac_label.grid(row=28,column=5,sticky='ne')
 
 
-        self.c_AffineRotate = ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text='Random Affine Rotation',variable=self.var_AffineRotate, onvalue=1, offvalue=0)
+        self.c_AffineRotate = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='Random Affine Rotation',variable=self.var_AffineRotate, onvalue=1, offvalue=0)
         self.c_AffineRotate.grid(row=29,column=2,sticky='sw')
-        self.c_AffineRotate_frac1_entry=tk.Entry(self.root,textvariable=self.var_AffineRotate_frac1)
+        self.c_AffineRotate_frac1_entry=tk.Entry(self.frame_table,textvariable=self.var_AffineRotate_frac1)
         self.c_AffineRotate_frac1_entry.grid(row=29,column=3,sticky='sw')
-        self.c_AffineRotate_frac1_label=tk.Label(self.root,text='Rotation List',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_AffineRotate_frac1_label=tk.Label(self.frame_table,text='Rotation List',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.c_AffineRotate_frac1_label.grid(row=30,column=3,sticky='nw')
-        self.c_AffineRotate_sometimes_frac_entry=tk.Entry(self.root,textvariable=self.var_sometimes_AffineRotate_frac)
+        self.c_AffineRotate_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_AffineRotate_frac)
         self.c_AffineRotate_sometimes_frac_entry.grid(row=29,column=5,sticky='se')
-        self.c_AffineRotate_sometimes_frac_label=tk.Label(self.root,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_AffineRotate_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
         self.c_AffineRotate_sometimes_frac_label.grid(row=30,column=5,sticky='ne')
 
-        self.c_FakeImage = ttk.Checkbutton(self.root, style='Normal.TCheckbutton',text='Fake Background Image',variable=self.var_FakeImage, onvalue=1, offvalue=0)
+        self.c_FakeImage = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='Fake Background Image',variable=self.var_FakeImage, onvalue=1, offvalue=0)
         self.c_FakeImage.grid(row=31,column=2,sticky='sw')
-        self.c_FakeImage_sometimes_frac_entry=tk.Entry(self.root,textvariable=self.var_sometimes_FakeImage_frac)
+        self.c_FakeImage_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_FakeImage_frac)
         self.c_FakeImage_sometimes_frac_entry.grid(row=31,column=5,sticky='se')
-        self.c_FakeImage_sometimes_frac_label=tk.Label(self.root,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_FakeImage_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
         self.c_FakeImage_sometimes_frac_label.grid(row=32,column=5,sticky='ne')
 
         self.load_my_imgs()
@@ -776,9 +832,9 @@ class IMGAug_JPGS_ANNOS:
         self.MAX_AUGS=DEFAULT_SETTINGS.MAX_AUGS #number of augmentations per class
         self.MAX_AUGS_VAR=tk.StringVar()
         self.MAX_AUGS_VAR.set(self.MAX_AUGS)
-        self.MAX_AUGS_entry=tk.Entry(self.root,textvariable=self.MAX_AUGS_VAR)
+        self.MAX_AUGS_entry=tk.Entry(self.frame_table,textvariable=self.MAX_AUGS_VAR)
         self.MAX_AUGS_entry.grid(row=19,column=1,sticky='sw')
-        self.MAX_AUGS_label=tk.Label(self.root,text='# Augs per Class',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.MAX_AUGS_label=tk.Label(self.frame_table,text='# Augs per Class',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.MAX_AUGS_label.grid(row=20,column=1,sticky='nw')
 
         self.labelImg_buttons()
@@ -881,9 +937,9 @@ class IMGAug_JPGS_ANNOS:
     def labelImg_buttons(self):
         if os.path.exists('libs/labelImg_path.py'):
 
-            self.labelImg_button=Button(self.root,image=self.icon_labelImg,command=self.popupWindow_labelImg,bg=self.root_bg,fg=self.root_fg)
+            self.labelImg_button=Button(self.frame_table,image=self.icon_labelImg,command=self.popupWindow_labelImg,bg=self.root_bg,fg=self.root_fg)
             self.labelImg_button.grid(row=1,column=0,sticky='se')
-            self.labelImg_button_note=tk.Label(self.root,text='LabelImg',bg=self.root_bg,fg=self.root_fg,font=("Arial", 9))
+            self.labelImg_button_note=tk.Label(self.frame_table,text='LabelImg',bg=self.root_bg,fg=self.root_fg,font=("Arial", 9))
             self.labelImg_button_note.grid(row=2,column=0,sticky='ne')  
 
     def open_labelImg(self,custom):
@@ -910,13 +966,69 @@ class IMGAug_JPGS_ANNOS:
         else:
             self.popup_text='Please provide a valid labelImg.py path. \n  Current path is: {}'.format(self.path_labelImg)
 
+    # def get_update_background_img(self):
+    #     self.image=Image.open(self.frame_table_background_img)
+    #     self.image=self.image.resize((self.frame_table_W,self.root_H),Image.ANTIALIAS)
+    #     self.bg=ImageTk.PhotoImage(self.image)
+    #     self.canvas=tk.Canvas(self.frame_table,width=self.root_W,height=self.root_H)
+    #     self.canvas.grid(row=0,column=0,columnspan=self.canvas_columnspan,rowspan=self.canvas_rowspan,sticky='nw')
+    #     self.canvas.create_image(0,0,image=self.bg,anchor='nw')
     def get_update_background_img(self):
-        self.image=Image.open(self.root_background_img)
-        self.image=self.image.resize((self.root_W,self.root_H),Image.ANTIALIAS)
-        self.bg=ImageTk.PhotoImage(self.image)
-        self.canvas=tk.Canvas(self.root,width=self.root_W,height=self.root_H)
-        self.canvas.grid(row=0,column=0,columnspan=self.canvas_columnspan,rowspan=self.canvas_rowspan,sticky='nw')
-        self.canvas.create_image(0,0,image=self.bg,anchor='nw')
+            global frame_table
+            self.image=Image.open(self.root_background_img)
+            self.image=self.image.resize((self.root_W,self.root_H),Image.ANTIALIAS)
+            self.bg=ImageTk.PhotoImage(self.image)
+            # self.canvas_og=tk.Canvas(self.frame_table1,width=self.root_W,height=self.root_H)
+            # self.canvas_og.grid(row=0,column=0,columnspan=self.canvas_columnspan,rowspan=self.canvas_rowspan,sticky='nw')
+            # self.canvas_og.create_image(0,0,image=self.bg,anchor='nw')
+            self.root.columnconfigure(0,weight=1)
+            self.root.rowconfigure(0,weight=1)
+            self.FMas=tk.Frame(self.root,bg='Black')
+            self.FMas.grid(sticky=(tk.N,tk.E,tk.S,tk.W),padx=20,pady=20)
+            self.FMas.columnconfigure(0,weight=1)
+            self.frame_canvas=tk.Frame(self.FMas)
+            self.frame_canvas.grid(row=0,column=0,sticky='nw')
+            self.frame_canvas.grid_rowconfigure(0,weight=1)
+            self.frame_canvas.grid_columnconfigure(0,weight=1)
+            self.frame_canvas.grid_propagate(False)
+
+            self.canvas=tk.Canvas(self.frame_canvas,bg='black')
+            self.canvas.grid(row=0,column=0,sticky='news')
+            self.label = tk.Label(self.canvas, image = self.bg)
+            self.label.grid(row=0,column=0,sticky='news')
+            self.style3=ttk.Style()
+            self.style3.configure('Vertical.TScrollbar',
+                                background='purple',
+                                foreground='black',
+                                arrowcolor='black',
+                                activebackground='yellow')
+            self.style3.configure('Horizontal.TScrollbar',
+                                background='purple',
+                                foreground='black',
+                                arrowcolor='black',
+                                activebackground='yellow')
+            self.vsbar=ttk.Scrollbar(self.frame_canvas,orient="vertical",command=self.canvas.yview,style="Vertical.TScrollbar")
+            self.vsbar.grid(row=0,column=1,sticky='nes',pady=1)
+            self.hsbar=ttk.Scrollbar(self.frame_canvas,orient="horizontal",command=self.canvas.xview,style="Horizontal.TScrollbar")
+
+            self.hsbar.grid(row=0,column=0,sticky='new',padx=1)
+            self.canvas.configure(yscrollcommand=self.vsbar.set)
+            self.canvas.configure(xscrollcommand=self.hsbar.set)
+            self.frame_table=tk.Frame(self.canvas,bg='black',padx=20,pady=20)
+
+            self.canvas.create_window((0,0),window=self.frame_table,anchor='nw')
+
+
+            total_width=self.root_W*1.#080#width_i+width_j+self.hsbar.winfo_width()
+            total_height=self.root_H*1.#height_i+height_j+self.vsbar.winfo_height()
+            # Create a Label Widget to display the text or Image
+
+            self.canvas.create_image((total_width*0.75,total_height*0.75),image=self.bg,anchor='nw')
+            print('total_width',total_width)
+            print('total_height',total_height)
+            self.frame_canvas.config(width=total_width,height=total_height)
+            self.canvas.config(scrollregion=self.canvas.bbox('all'))
+            frame_table=self.frame_table
 
     def select_folder(self,folder_i,title_i,var_i=None):
         filetypes=(('All files','*.*'))
@@ -936,8 +1048,8 @@ class IMGAug_JPGS_ANNOS:
             self.open_anno_label.destroy()
             del self.open_anno_label
             cmd_i=open_cmd+" '{}'".format(self.open_anno_label_var.get())
-            self.open_anno_label=Button(self.root,textvariable=self.open_anno_label_var, command=partial(self.run_cmd,cmd_i),bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
-            #self.open_anno_label=tk.Label(self.root,textvariable=self.open_anno_label_var)
+            self.open_anno_label=Button(self.frame_table,textvariable=self.open_anno_label_var, command=partial(self.run_cmd,cmd_i),bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
+            #self.open_anno_label=tk.Label(self.frame_table,textvariable=self.open_anno_label_var)
             self.open_anno_label.grid(row=2,column=2,columnspan=50,sticky='sw')
             self.path_Annotations=self.foldername
             print(self.path_Annotations)
@@ -947,8 +1059,8 @@ class IMGAug_JPGS_ANNOS:
             self.open_jpeg_label.destroy()
             del self.open_jpeg_label
             cmd_i=open_cmd+" '{}'".format(self.open_jpeg_label_var.get())
-            self.open_jpeg_label=Button(self.root,textvariable=self.open_jpeg_label_var, command=partial(self.run_cmd,cmd_i),bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
-            #self.open_jpeg_label=tk.Label(self.root,textvariable=self.open_jpeg_label_var)
+            self.open_jpeg_label=Button(self.frame_table,textvariable=self.open_jpeg_label_var, command=partial(self.run_cmd,cmd_i),bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
+            #self.open_jpeg_label=tk.Label(self.frame_table,textvariable=self.open_jpeg_label_var)
             self.open_jpeg_label.grid(row=4,column=2,columnspan=50,sticky='sw')
             self.path_JPEGImages=self.foldername
             print(self.path_JPEGImages)
@@ -1282,11 +1394,11 @@ class IMGAug_JPGS_ANNOS:
         j=2
 
 
-        self.LABEL_title=tk.Label(self.root,text='Label',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
+        self.LABEL_title=tk.Label(self.frame_table,text='Label',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
         self.LABEL_title.grid(row=i,column=j+6,sticky='nw')
-        self.traincount_title=tk.Label(self.root,text='Train Count OG #',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
+        self.traincount_title=tk.Label(self.frame_table,text='Train Count OG #',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
         self.traincount_title.grid(row=i,column=j+7,sticky='nw')
-        self.testcount_title=tk.Label(self.root,text='Test Count OG #',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
+        self.testcount_title=tk.Label(self.frame_table,text='Test Count OG #',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
         self.testcount_title.grid(row=i,column=j+8,sticky='nw')
 
         for label,(count_train,count_test) in self.label_counter_before.items():
@@ -1294,11 +1406,11 @@ class IMGAug_JPGS_ANNOS:
                 self.max_count=count_train
             self.label_counter[label]=count_train
             print("LABEL={}; TRAIN={}; TEST={}".format(label,count_train,count_test))
-            self.TRAIN_label_dic[label]=tk.Label(self.root,text=label,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 underline'))
+            self.TRAIN_label_dic[label]=tk.Label(self.frame_table,text=label,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 underline'))
             self.TRAIN_label_dic[label].grid(row=i+1,column=j+6,sticky='nw')
-            self.TRAIN_count_dic[label]=tk.Label(self.root,text=count_train,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
+            self.TRAIN_count_dic[label]=tk.Label(self.frame_table,text=count_train,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
             self.TRAIN_count_dic[label].grid(row=i+1,column=j+7,sticky='nw')
-            self.TEST_count_dic[label]=tk.Label(self.root,text=count_test,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
+            self.TEST_count_dic[label]=tk.Label(self.frame_table,text=count_test,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
             self.TEST_count_dic[label].grid(row=i+1,column=j+8,sticky='nw')
             i+=1
 
@@ -1315,7 +1427,7 @@ class IMGAug_JPGS_ANNOS:
 
         self.TRAIN_label_dic={}
         
-        self.TRAIN_SPLIT_label=tk.Label(self.root,text='TRAIN SPLIT',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.TRAIN_SPLIT_label=tk.Label(self.frame_table,text='TRAIN SPLIT',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
         self.TRAIN_SPLIT_label.grid(row=16,column=1,sticky='nw')
 
     def put_fake_background(self,img,bbs):
@@ -1423,23 +1535,23 @@ class IMGAug_JPGS_ANNOS:
 
         self.open_aug_anno_label_var=tk.StringVar()
         self.open_aug_anno_label_var.set(self.Annotations_aug_path)
-        self.open_aug_anno_note=tk.Label(self.root,text="2.a \n Aug \n Annotations dir",bg=self.root_bg,fg=self.root_fg,font=("Arial", 8))
+        self.open_aug_anno_note=tk.Label(self.frame_table,text="2.a \n Aug \n Annotations dir",bg=self.root_bg,fg=self.root_fg,font=("Arial", 8))
         self.open_aug_anno_note.grid(row=9,column=1,sticky='ne')
         cmd_i=open_cmd+" '{}'".format(self.open_aug_anno_label_var.get())
-        self.open_aug_anno_label=Button(self.root,textvariable=self.open_aug_anno_label_var, command=partial(self.run_cmd,cmd_i),bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
+        self.open_aug_anno_label=Button(self.frame_table,textvariable=self.open_aug_anno_label_var, command=partial(self.run_cmd,cmd_i),bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
         self.open_aug_anno_label.grid(row=8,column=2,columnspan=50,sticky='sw')
-        self.open_aug_anno_button=Button(self.root,image=self.icon_single_file,command=partial(self.run_cmd,cmd_i),bg=self.root_bg,fg=self.root_fg)
+        self.open_aug_anno_button=Button(self.frame_table,image=self.icon_single_file,command=partial(self.run_cmd,cmd_i),bg=self.root_bg,fg=self.root_fg)
         self.open_aug_anno_button.grid(row=8,column=1,sticky='se')
 
         self.open_aug_jpeg_label_var=tk.StringVar()
         self.open_aug_jpeg_label_var.set(self.JPEGImages_aug_path)
-        self.open_aug_jpeg_note=tk.Label(self.root,text="2.b \n Aug \n JPEGImages dir",bg=self.root_bg,fg=self.root_fg,font=("Arial", 8))
+        self.open_aug_jpeg_note=tk.Label(self.frame_table,text="2.b \n Aug \n JPEGImages dir",bg=self.root_bg,fg=self.root_fg,font=("Arial", 8))
         self.open_aug_jpeg_note.grid(row=11,column=1,sticky='ne')
 
         cmd_i=open_cmd+" '{}'".format(self.open_aug_jpeg_label_var.get())
-        self.open_aug_jpeg_label=Button(self.root,textvariable=self.open_aug_jpeg_label_var, command=partial(self.run_cmd,cmd_i),bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
+        self.open_aug_jpeg_label=Button(self.frame_table,textvariable=self.open_aug_jpeg_label_var, command=partial(self.run_cmd,cmd_i),bg=self.root_fg,fg=self.root_bg,font=("Arial", 8))
         self.open_aug_jpeg_label.grid(row=10,column=2,columnspan=50,sticky='sw')
-        self.open_aug_jpeg_button=Button(self.root,image=self.icon_single_file,command=partial(self.run_cmd,cmd_i),bg=self.root_bg,fg=self.root_fg)
+        self.open_aug_jpeg_button=Button(self.frame_table,image=self.icon_single_file,command=partial(self.run_cmd,cmd_i),bg=self.root_bg,fg=self.root_fg)
         self.open_aug_jpeg_button.grid(row=10,column=1,sticky='se')
         self.Annotations=[os.path.basename(w) for w in self.train_list_annos]
         self.df['Annotation_basepath']=[os.path.basename(w) for w in self.df['Annotations']]
@@ -1609,13 +1721,13 @@ class IMGAug_JPGS_ANNOS:
         i=1
         j=2
 
-        self.LABEL_title=tk.Label(self.root,text='Label',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
+        self.LABEL_title=tk.Label(self.frame_table,text='Label',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
         self.LABEL_title.grid(row=i,column=j+6,sticky='nw')
-        self.traincount_title=tk.Label(self.root,text='Train Count OG #',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
+        self.traincount_title=tk.Label(self.frame_table,text='Train Count OG #',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
         self.traincount_title.grid(row=i,column=j+7,sticky='nw')
-        self.testcount_title=tk.Label(self.root,text='Test Count OG #',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
+        self.testcount_title=tk.Label(self.frame_table,text='Test Count OG #',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
         self.testcount_title.grid(row=i,column=j+8,sticky='nw')
-        self.traincountafter_title=tk.Label(self.root,text='Train Count w/ AUGS #',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
+        self.traincountafter_title=tk.Label(self.frame_table,text='Train Count w/ AUGS #',bg=self.root_fg,fg=self.root_bg,font=('Arial 14 underline'))
         self.traincountafter_title.grid(row=i,column=j+9,sticky='nw')
 
         for label,(count_train,count_test,count_train_after) in self.label_counter_after.items():
@@ -1624,25 +1736,25 @@ class IMGAug_JPGS_ANNOS:
                 self.TRAIN_label_dic[label].destroy()
             except:
                 pass
-            self.TRAIN_label_dic[label]=tk.Label(self.root,text=label,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 underline'))
+            self.TRAIN_label_dic[label]=tk.Label(self.frame_table,text=label,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 underline'))
             self.TRAIN_label_dic[label].grid(row=i+1,column=j+6,sticky='nw')
             try:
                 self.TRAIN_count_dic[label].destroy()
             except:
                 pass
-            self.TRAIN_count_dic[label]=tk.Label(self.root,text=count_train,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
+            self.TRAIN_count_dic[label]=tk.Label(self.frame_table,text=count_train,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
             self.TRAIN_count_dic[label].grid(row=i+1,column=j+7,sticky='nw')
             try:
                 self.TEST_count_dic[label].destroy()
             except:
                 pass
-            self.TEST_count_dic[label]=tk.Label(self.root,text=count_test,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
+            self.TEST_count_dic[label]=tk.Label(self.frame_table,text=count_test,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
             self.TEST_count_dic[label].grid(row=i+1,column=j+8,sticky='nw')
             try:
                 self.TRAIN_POST_count_dic[label].destroy()
             except:
                 pass
-            self.TRAIN_POST_count_dic[label]=tk.Label(self.root,text=count_train_after,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
+            self.TRAIN_POST_count_dic[label]=tk.Label(self.frame_table,text=count_train_after,bg=self.root_bg,fg=self.root_fg,font=('Arial 10 bold'))
             self.TRAIN_POST_count_dic[label].grid(row=i+1,column=j+9,sticky='nw')
             i+=1
         self.save_settings()
