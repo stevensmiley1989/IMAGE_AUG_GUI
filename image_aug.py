@@ -656,6 +656,8 @@ class IMGAug_JPGS_ANNOS:
         self.var_sometimes_GaussianBlur_frac_INIT=DEFAULT_SETTINGS.var_sometimes_GaussianBlur_frac_INIT
         self.var_sometimes_GaussianBlur_frac.set(self.var_sometimes_GaussianBlur_frac_INIT)
 
+
+
         var_AffineRotate_INIT=1
         var_AffineRotate_frac1_INIT="-45,-30,-15,-10,-5,5,10,15,30,45"
         var_sometimes_AffineRotate_frac_INIT='0.5'
@@ -699,6 +701,82 @@ class IMGAug_JPGS_ANNOS:
             self.var_sometimes_FakeImage_frac_INIT=var_sometimes_FakeImage_frac_INIT           
 
         self.var_sometimes_FakeImage_frac.set(self.var_sometimes_FakeImage_frac_INIT)
+
+        #FastSnowyLandscape
+        self.var_FastSnowyLandscape=tk.IntVar()
+        try:
+            self.var_FastSnowyLandscape_INIT=DEFAULT_SETTINGS.var_FastSnowyLandscape_INIT
+        except:
+            self.var_FastSnowyLandscape_INIT=0
+        self.var_FastSnowyLandscape.set(self.var_FastSnowyLandscape_INIT)
+
+        self.var_FastSnowyLandscape_frac1=tk.StringVar()
+        try:
+            self.var_FastSnowyLandscape_frac1_INIT=DEFAULT_SETTINGS.var_FastSnowyLandscape_frac1_INIT
+        except:
+            self.var_FastSnowyLandscape_frac1_INIT=140
+        self.var_FastSnowyLandscape_frac1.set(self.var_FastSnowyLandscape_frac1_INIT)
+        
+        self.var_FastSnowyLandscape_frac2=tk.StringVar()
+        try:
+            self.var_FastSnowyLandscape_frac2_INIT=DEFAULT_SETTINGS.var_FastSnowyLandscape_frac2_INIT
+        except:
+            self.var_FastSnowyLandscape_frac2_INIT=2.5
+        self.var_FastSnowyLandscape_frac2.set(self.var_FastSnowyLandscape_frac2_INIT)
+        
+        self.var_sometimes_FastSnowyLandscape_frac=tk.StringVar()
+        try:
+            self.var_sometimes_FastSnowyLandscape_frac_INIT=DEFAULT_SETTINGS.var_sometimes_FastSnowyLandscape_frac_INIT
+        except:
+            self.var_sometimes_FastSnowyLandscape_frac_INIT='0.5'
+        self.var_sometimes_FastSnowyLandscape_frac.set(self.var_sometimes_FastSnowyLandscape_frac_INIT)
+
+
+        #Rain
+        self.var_Rain=tk.IntVar()
+        try:
+            self.var_Rain_INIT=DEFAULT_SETTINGS.var_Rain_INIT
+        except:
+            self.var_Rain_INIT=0
+        self.var_Rain.set(self.var_Rain_INIT)
+
+        self.var_Rain_frac1=tk.StringVar()
+        try:
+            self.var_Rain_frac1_INIT=DEFAULT_SETTINGS.var_Rain_frac1_INIT
+        except:
+            self.var_Rain_frac1_INIT="0.1,0.3"
+        self.var_Rain_frac1.set(self.var_Rain_frac1_INIT)
+        
+        self.var_Rain_frac2=tk.StringVar()
+        try:
+            self.var_Rain_frac2_INIT=DEFAULT_SETTINGS.var_Rain_frac2_INIT
+        except:
+            self.var_Rain_frac2_INIT='0.10,0.20'
+        self.var_Rain_frac2.set(self.var_Rain_frac2_INIT)
+        
+        self.var_sometimes_Rain_frac=tk.StringVar()
+        try:
+            self.var_sometimes_Rain_frac_INIT=DEFAULT_SETTINGS.var_sometimes_Rain_frac_INIT
+        except:
+            self.var_sometimes_Rain_frac_INIT='0.5'
+        self.var_sometimes_Rain_frac.set(self.var_sometimes_Rain_frac_INIT)
+
+        #Fog
+        self.var_Fog=tk.IntVar()
+        try:
+            self.var_Fog_INIT=DEFAULT_SETTINGS.var_Fog_INIT
+        except:
+            self.var_Fog_INIT=0
+        self.var_Fog.set(self.var_Fog_INIT)
+        
+        self.var_sometimes_Fog_frac=tk.StringVar()
+        try:
+            self.var_sometimes_Fog_frac_INIT=DEFAULT_SETTINGS.var_sometimes_Fog_frac_INIT
+        except:
+            self.var_sometimes_Fog_frac_INIT='0.5'
+        self.var_sometimes_Fog_frac.set(self.var_sometimes_Fog_frac_INIT)
+
+
 
         self.c_HEADER1_label=tk.Label(self.frame_table,text='Img Aug Selection',bg=self.root_bg,fg=self.root_fg,font=('Arial 14 underline'))
         self.c_HEADER1_label.grid(row=12,column=2,sticky='sw')
@@ -827,6 +905,43 @@ class IMGAug_JPGS_ANNOS:
         self.c_FakeImage_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
         self.c_FakeImage_sometimes_frac_label.grid(row=32,column=5,sticky='ne')
 
+        self.c_FastSnowyLandscape = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='FastSnowyLandscape',variable=self.var_FastSnowyLandscape, onvalue=1, offvalue=0)
+        self.c_FastSnowyLandscape.grid(row=33,column=2,sticky='sw')
+        self.c_FastSnowyLandscape_frac1_entry=tk.Entry(self.frame_table,textvariable=self.var_FastSnowyLandscape_frac1)
+        self.c_FastSnowyLandscape_frac1_entry.grid(row=33,column=3,sticky='sw')
+        self.c_FastSnowyLandscape_frac1_label=tk.Label(self.frame_table,text='lightness_threshold',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_FastSnowyLandscape_frac1_label.grid(row=34,column=3,sticky='nw')
+        self.c_FastSnowyLandscape_frac2_entry=tk.Entry(self.frame_table,textvariable=self.var_FastSnowyLandscape_frac2)
+        self.c_FastSnowyLandscape_frac2_entry.grid(row=33,column=4,sticky='sw')
+        self.c_FastSnowyLandscape_frac2_label=tk.Label(self.frame_table,text='lightness_multiplier',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_FastSnowyLandscape_frac2_label.grid(row=34,column=4,sticky='nw')
+        self.c_FastSnowyLandscape_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_FastSnowyLandscape_frac)
+        self.c_FastSnowyLandscape_sometimes_frac_entry.grid(row=33,column=5,sticky='se')
+        self.c_FastSnowyLandscape_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_FastSnowyLandscape_sometimes_frac_label.grid(row=34,column=5,sticky='ne')
+
+        self.c_Rain = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='Rain',variable=self.var_Rain, onvalue=1, offvalue=0)
+        self.c_Rain.grid(row=35,column=2,sticky='sw')
+        self.c_Rain_frac1_entry=tk.Entry(self.frame_table,textvariable=self.var_Rain_frac1)
+        self.c_Rain_frac1_entry.grid(row=35,column=3,sticky='sw')
+        self.c_Rain_frac1_label=tk.Label(self.frame_table,text='speed',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_Rain_frac1_label.grid(row=36,column=3,sticky='nw')
+        self.c_Rain_frac2_entry=tk.Entry(self.frame_table,textvariable=self.var_Rain_frac2)
+        self.c_Rain_frac2_entry.grid(row=35,column=4,sticky='sw')
+        self.c_Rain_frac2_label=tk.Label(self.frame_table,text='drop_size',bg=self.root_bg,fg=self.root_fg,font=('Arial',7))
+        self.c_Rain_frac2_label.grid(row=36,column=4,sticky='nw')
+        self.c_Rain_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_Rain_frac)
+        self.c_Rain_sometimes_frac_entry.grid(row=35,column=5,sticky='se')
+        self.c_Rain_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_Rain_sometimes_frac_label.grid(row=36,column=5,sticky='ne')
+
+        self.c_Fog = ttk.Checkbutton(self.frame_table, style='Normal.TCheckbutton',text='Fog',variable=self.var_Fog, onvalue=1, offvalue=0)
+        self.c_Fog.grid(row=37,column=2,sticky='sw')
+        self.c_Fog_sometimes_frac_entry=tk.Entry(self.frame_table,textvariable=self.var_sometimes_Fog_frac)
+        self.c_Fog_sometimes_frac_entry.grid(row=37,column=5,sticky='se')
+        self.c_Fog_sometimes_frac_label=tk.Label(self.frame_table,text='Sometimes - Fraction',bg=self.root_fg,fg=self.root_bg,font=('Arial',7))
+        self.c_Fog_sometimes_frac_label.grid(row=38,column=5,sticky='ne')
+
         self.load_my_imgs()
 
         self.MAX_AUGS=DEFAULT_SETTINGS.MAX_AUGS #number of augmentations per class
@@ -870,7 +985,7 @@ class IMGAug_JPGS_ANNOS:
         self.var_AffineRotate_frac1_INIT=self.var_AffineRotate_frac1.get()
         self.var_sometimes_AffineRotate_frac_INIT=self.var_sometimes_AffineRotate_frac.get()
         self.var_FakeImage_INIT=self.var_FakeImage.get()
-        self.var_FakeImage_frac1=self.var_FakeImage_frac1.get()
+        #self.var_FakeImage_frac1=self.var_FakeImage_frac1.get()
 
         self.PREFIX=self.PREFIX_VAR.get()
         if os.path.exists('libs/DEFAULT_SETTINGS.py'):
@@ -1955,6 +2070,81 @@ class IMGAug_JPGS_ANNOS:
                 random_i=np.random.random()
                 if sometimes_frac_FakeImage>random_i:
                     self.img_i,self.bbs=self.put_fake_background(self.img_i,self.bbs)
+        if self.var_FastSnowyLandscape.get()==1:
+            try:
+                lightness_threshold=self.var_FastSnowyLandscape_frac1.get()
+                lightness_threshold=int(lightness_threshold.replace(' ','').replace('\n',''))
+            except:
+                lightness_threshold=140
+                print(f'Exception using {lightness_threshold} for lightness_threshold')
+
+            try:
+                lightness_multiplier=self.var_FastSnowyLandscape_frac2.get()
+                lightness_multiplier=float(lightness_multiplier.replace(' ','').replace('\n',''))
+            except:
+                lightness_multiplier=2.5
+                print(f'Exception using {lightness_multiplier} for lightness_multiplier')
+
+            if self.var_sometimes.get()!=1:
+                self.img_i,self.bbs=iaa.FastSnowyLandscape(lightness_threshold=lightness_threshold,lightness_multiplier=lightness_multiplier)(image=self.img_i,bounding_boxes=self.bbs)
+            else:
+                if self.var_sometimes_FastSnowyLandscape_frac.get()!=self.var_sometimes_frac.get():
+                    try:
+                        sometimes_frac_FastSnowyLandscape=float(self.var_sometimes_FastSnowyLandscape_frac.get())
+                    except:
+                        print('Exception using sometimes fraction')
+                        sometimes_frac_FastSnowyLandscape=sometimes_frac
+                else:
+                    sometimes_frac_FastSnowyLandscape=sometimes_frac
+                #self.img_i,self.bbs=iaa.Sometimes(sometimes_frac_Affine,iaa.Affine(rotate=rot_frac))(image=self.img_i,bounding_boxes=self.bbs)
+                self.img_i,self.bbs=iaa.Sometimes(sometimes_frac_FastSnowyLandscape,iaa.FastSnowyLandscape(lightness_threshold=lightness_threshold,lightness_multiplier=lightness_multiplier))(image=self.img_i,bounding_boxes=self.bbs)
+        if self.var_Rain.get()==1:
+            try:
+                speed=self.var_Rain_frac1.get()
+                speed=[float(w) for w in speed.split(',')]
+                speed=tuple(speed)
+            except:
+                speed="0.1,0.3"
+                print(f'Exception using {speed} for speed')
+                speed=[float(w) for w in speed.split(',')]
+                speed=tuple(speed)
+
+            try:
+                drop_size=self.var_Rain_frac2.get()
+                drop_size=[float(w) for w in drop_size.split(',')]
+                drop_size=tuple(drop_size)
+            except:
+                drop_size="0.10,0.20"
+                print(f'Exception using {drop_size} for drop_size')
+                drop_size=[float(w) for w in drop_size.split(',')]
+                drop_size=tuple(drop_size)
+
+            if self.var_sometimes.get()!=1:
+                self.img_i,self.bbs=iaa.Rain(speed=speed,drop_size=drop_size)(image=self.img_i,bounding_boxes=self.bbs)
+            else:
+                if self.var_sometimes_Rain_frac.get()!=self.var_sometimes_frac.get():
+                    try:
+                        sometimes_frac_Rain=float(self.var_sometimes_Rain_frac.get())
+                    except:
+                        print('Exception using sometimes fraction')
+                        sometimes_frac_Rain=sometimes_frac
+                else:
+                    sometimes_frac_Rain=sometimes_frac
+                #self.img_i,self.bbs=iaa.Sometimes(sometimes_frac_Affine,iaa.Affine(rotate=rot_frac))(image=self.img_i,bounding_boxes=self.bbs)
+                self.img_i,self.bbs=iaa.Sometimes(sometimes_frac_Rain,iaa.Rain(speed=speed,drop_size=drop_size))(image=self.img_i,bounding_boxes=self.bbs)
+        if self.var_Fog.get()==1:
+            if self.var_sometimes.get()!=1:
+                self.img_i,self.bbs=iaa.Fog()(image=self.img_i,bounding_boxes=self.bbs)
+            else:
+                if self.var_sometimes_Fog_frac.get()!=self.var_sometimes_frac.get():
+                    try:
+                        sometimes_frac_Fog=float(self.var_sometimes_Fog_frac.get())
+                    except:
+                        print('Exception using sometimes fraction')
+                        sometimes_frac_Fog=sometimes_frac
+                else:
+                    sometimes_frac_Fog=sometimes_frac
+                self.img_i,self.bbs=iaa.Sometimes(sometimes_frac_Fog,iaa.Fog())(image=self.img_i,bounding_boxes=self.bbs)
                 
     def close(self,event):
         self.root.destroy()
